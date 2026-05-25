@@ -4,7 +4,7 @@
 -- ══════════════════════════════════════════════
 
 local UI = loadstring(game:HttpGet(
-    "https://raw.githubusercontent.com/USERNAME/REPO/main/UILibrary.lua"
+    "https://raw.githubusercontent.com/rickyaditya511/hac/refs/heads/main/UILibrary.lua"
 ))()
 
 -- ── Buat Window ──────────────────────────────
