@@ -39,6 +39,7 @@ local Theme = {
     TogOn = Color3.fromRGB(85,125,255), TogOff = Color3.fromRGB(55,60,80), Thumb = Color3.new(1,1,1),
     Slider = Color3.fromRGB(85,125,255), SliderBg = Color3.fromRGB(38,42,60),
     DD = Color3.fromRGB(28,32,50), Notif = Color3.fromRGB(23,25,40), Foot = Color3.fromRGB(13,13,23),
+    FloatBg = Color3.fromRGB(85,125,255),
 }
 
 local Library = {}
@@ -58,11 +59,14 @@ function Library:CreateWindow(cfg)
     Util.Create("UICorner", { CornerRadius = UDim.new(0,12), Parent = top })
     Util.Create("Frame", { Size = UDim2.new(1,0,0,12), Position = UDim2.new(0,0,1,-12), BackgroundColor3 = Theme.Top, BorderSizePixel = 0, Parent = top })
     
-    Util.Create("TextLabel", { Size = UDim2.new(1,-60,1,0), Position = UDim2.new(0,14,0,0), BackgroundTransparency = 1, Text = win.Title, TextColor3 = Color3.new(1,1,1), TextSize = 14, Font = Enum.Font.GothamBold, TextXAlignment = "Left", Parent = top })
+    Util.Create("TextLabel", { Size = UDim2.new(1,-100,1,0), Position = UDim2.new(0,14,0,0), BackgroundTransparency = 1, Text = win.Title, TextColor3 = Color3.new(1,1,1), TextSize = 14, Font = Enum.Font.GothamBold, TextXAlignment = "Left", Parent = top })
+    
+    local minimizeBtn = Util.Create("TextButton", { Size = UDim2.new(0,26,0,26), Position = UDim2.new(1,-66,0.5,-13), BackgroundColor3 = Color3.fromRGB(255,180,50), Text = "-", TextColor3 = Color3.new(1,1,1), TextSize = 16, Font = Enum.Font.GothamBold, BorderSizePixel = 0, Parent = top })
+    Util.Create("UICorner", { CornerRadius = UDim.new(0,8), Parent = minimizeBtn })
     
     local closeBtn = Util.Create("TextButton", { Size = UDim2.new(0,26,0,26), Position = UDim2.new(1,-34,0.5,-13), BackgroundColor3 = Theme.Dan, Text = "x", TextColor3 = Color3.new(1,1,1), TextSize = 14, Font = Enum.Font.GothamBold, BorderSizePixel = 0, Parent = top })
     Util.Create("UICorner", { CornerRadius = UDim.new(0,8), Parent = closeBtn })
-    closeBtn.MouseButton1Click:Connect(function() sgui:Destroy() end)
+    closeBtn.MouseButton1Click:Connect(function() if win.FloatIcon then win.FloatIcon:Destroy() end; sgui:Destroy() end)
     
     local tabBar = Util.Create("Frame", { Size = UDim2.new(1,0,0,34), Position = UDim2.new(0,0,0,38), BackgroundColor3 = Theme.Top, BorderSizePixel = 0, Parent = main })
     Util.Create("UIListLayout", { FillDirection = "Horizontal", SortOrder = "LayoutOrder", Padding = UDim.new(0,4), Parent = tabBar })
@@ -74,6 +78,46 @@ function Library:CreateWindow(cfg)
     Util.Create("UICorner", { CornerRadius = UDim.new(0,12), Parent = footer })
     
     Util.MakeDraggable(main, top)
+    
+    -- Minimize
+    win.Minimized = false
+    win.FloatIcon = nil
+    local savedSize = { W = 560, H = 420 }
+    local savedPos
+    
+    local function minimize()
+        if win.Minimized then return end
+        win.Minimized = true
+        savedSize.W = main.Size.X.Offset
+        savedSize.H = main.Size.Y.Offset
+        savedPos = main.Position
+        
+        Util.Tween(main, TweenInfo.new(0.25), { Size = UDim2.new(0, 0, 0, savedSize.H) })
+        task.delay(0.26, function()
+            main.Visible = false
+            if not win.FloatIcon then
+                local fb = Util.Create("TextButton", { Size = UDim2.new(0,46,0,46), Position = UDim2.new(1,-62,0,16), BackgroundColor3 = Theme.FloatBg, Text = "R", TextColor3 = Color3.new(1,1,1), TextSize = 20, Font = Enum.Font.GothamBold, BorderSizePixel = 0, Parent = sgui })
+                Util.Create("UICorner", { CornerRadius = UDim.new(1,0), Parent = fb })
+                Util.Create("UIStroke", { Color = Color3.new(1,1,1), Thickness = 1.5, Transparency = 0.5, Parent = fb })
+                Util.MakeDraggable(fb)
+                
+                fb.MouseButton1Click:Connect(function()
+                    if not win.Minimized then return end
+                    win.Minimized = false
+                    fb:Destroy()
+                    win.FloatIcon = nil
+                    main.Visible = true
+                    main.Size = UDim2.new(0, 0, 0, savedSize.H)
+                    main.Position = savedPos
+                    Util.Tween(main, TweenInfo.new(0.3), { Size = UDim2.new(0, savedSize.W, 0, savedSize.H) })
+                end)
+                
+                win.FloatIcon = fb
+            end
+        end)
+    end
+    
+    minimizeBtn.MouseButton1Click:Connect(minimize)
     
     -- Notification holder
     local notifs = Util.Create("Frame", { Size = UDim2.new(0,300,1,0), Position = UDim2.new(1,-316,0,0), BackgroundTransparency = 1, Parent = sgui })
