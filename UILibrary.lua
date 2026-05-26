@@ -611,23 +611,24 @@ function Library:CreateWindow(config)
                 })
                 
                 local function set(v)
-                    val = v
-                    local s = SpringEngine.new(v and 0 or 1)
-                    s:OnChange(function(p)
-                        local t = v and p or (1 - p)
-                        pcall(function()
-                            track.BackgroundColor3 = Util.LerpColor(Theme.ToggleInactive, Theme.ToggleActive, t)
-                            thumb.Position = UDim2.new(0, 3 + 18 * t, 0.5, -8)
-                        end)
-                    end)
-                    s:SetTarget(v and 1 or 0)
-                    pcall(cfg.Callback or function() end, val)
-                end
-                
-                click.MouseButton1Click:Connect(function() set(not val) end)
-                
-                return { Set = function(v) set(v) end, Get = function() return val end }
-            end
+    val = v
+    local target = v and 1 or 0
+    local s = SpringEngine.new(v and 0 or 1)
+    s:OnChange(function(p)
+        local t
+        if v then
+            t = p  -- 0 -> 1
+        else
+            t = 1 - p  -- 1 -> 0
+        end
+        pcall(function()
+            track.BackgroundColor3 = Util.LerpColor(Theme.ToggleInactive, Theme.ToggleActive, t)
+            thumb.Position = UDim2.new(0, 3 + 18 * t, 0.5, -8)
+        end)
+    end)
+    s:SetTarget(target)
+    pcall(cfg.Callback or function() end, val)
+end
             
             function sec:AddSlider(cfg)
                 cfg = cfg or {}
