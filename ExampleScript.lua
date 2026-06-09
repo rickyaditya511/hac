@@ -1,7 +1,7 @@
 --[[
     Ultimate Farm X - Full Edition
     by Rylax0322
-    Library: WindUI
+    Library: RickUi
     Features: ALL remotes implemented, 15+ tabs, bug fixes, optimized
 ]]
 
