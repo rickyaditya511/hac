@@ -1,34 +1,49 @@
--- BBQ MASTERY - Rick UI Library Edition
--- Fixed Version
+-- ============================================
+-- BBQ MASTERY - REBUILD VERSION
+-- Using Rick UI Library
+-- ============================================
 
 local RickUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/rickyaditya511/hac/main/Rick_UI_fix.lua"))()
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
+local ProximityPromptService = game:GetService("ProximityPromptService")
 
 local player = Players.LocalPlayer
 
+-- ============================================
+-- WAIT FOR CHARACTER
+-- ============================================
 if not player.Character then
     player.CharacterAdded:Wait()
 end
+task.wait(0.5)
 
-local Toggles = {
+-- ============================================
+-- CONFIGURATION
+-- ============================================
+local Config = {
     AutoCook = false,
     AutoPlate = false,
     AutoSell = false,
-    AutoBuy = false,
+    AutoBuyMeat = false,
     AutoBuyTotem = false,
-    InstantPrompt = false
+    InstantPrompt = false,
+    ActionDelay = 0.3,
+    BuyThreshold = 5
 }
 
-local ActionDelay = 0.3
-local BuyThreshold = 5
 local MeatStates = {}
 local LastBuyTime = {}
+local BuyMeatTargets = {}
+local BuyTotemTargets = {}
 
+-- ============================================
+-- REMOTE HANDLER
+-- ============================================
 local Remotes = ReplicatedStorage:FindFirstChild("Remotes")
-local function safeRemoteFire(remoteName, ...)
+local function FireRemote(remoteName, ...)
     if not Remotes then return false end
     local remote = Remotes:FindFirstChild(remoteName)
     if not remote then return false end
@@ -36,6 +51,9 @@ local function safeRemoteFire(remoteName, ...)
     return true
 end
 
+-- ============================================
+-- MEAT & TOTEM OPTIONS
+-- ============================================
 local MeatOptions = {
     "Raw Hotdog", "Raw Burger", "Raw Chicken", "Raw Salmon",
     "Raw Ribs", "Raw Prime Rib", "Raw Brisket", "Raw Lobster Tail",
@@ -48,97 +66,173 @@ local TotemOptions = {
     "Luck Totem", "Diamond Totem", "Ruby Totem"
 }
 
-local BuyTargets = {}
-local BuyTotemTargets = {}
+-- Dynamic fetch
+pcall(function()
+    local MeatsFolder = ReplicatedStorage:FindFirstChild("Meats")
+    if MeatsFolder then
+        for _, rarity in ipairs(MeatsFolder:GetChildren()) do
+            for _, tool in ipairs(rarity:GetChildren()) do
+                if tool:IsA("Tool") and not table.find(MeatOptions, tool.Name) then
+                    table.insert(MeatOptions, tool.Name)
+                end
+            end
+        end
+    end
+    
+    local TotemsFolder = ReplicatedStorage:FindFirstChild("Totems")
+    if TotemsFolder then
+        for _, t in ipairs(TotemsFolder:GetChildren()) do
+            if not table.find(TotemOptions, t.Name) then
+                table.insert(TotemOptions, t.Name)
+            end
+        end
+    end
+end)
 
-for _, m in ipairs(MeatOptions) do BuyTargets[m] = false end
+-- Initialize targets
+for _, m in ipairs(MeatOptions) do BuyMeatTargets[m] = false end
 for _, t in ipairs(TotemOptions) do BuyTotemTargets[t] = false end
 
-local function isSpotEmpty(spot)
+-- ============================================
+-- INSTANT PROMPT
+-- ============================================
+if ProximityPromptService then
+    ProximityPromptService.PromptButtonHoldBegan:Connect(function(prompt, playerActed)
+        if Config.InstantPrompt and playerActed == player then
+            if fireproximityprompt then
+                fireproximityprompt(prompt)
+            elseif prompt then
+                prompt.HoldDuration = 0
+            end
+        end
+    end)
+end
+
+-- ============================================
+-- REMOTE LISTENERS
+-- ============================================
+if Remotes then
+    local cookUpdate = Remotes:FindFirstChild("CookUpdate")
+    if cookUpdate then
+        cookUpdate.OnClientEvent:Connect(function(spot, _, _, state)
+            if spot then MeatStates[spot] = state end
+        end)
+    end
+    
+    local npcOffer = Remotes:FindFirstChild("NPCOffer")
+    if npcOffer then
+        npcOffer.OnClientEvent:Connect(function(_, _, _, offerId)
+            if Config.AutoSell and offerId then
+                task.wait(math.random(3, 6) / 10)
+                FireRemote("NPCResponse", offerId, true)
+            end
+        end)
+    end
+end
+
+-- ============================================
+-- HELPER FUNCTIONS
+-- ============================================
+local function IsSpotEmpty(spot)
     if not spot then return true end
     for _, child in ipairs(spot:GetChildren()) do
-        if child:IsA("Model") or child:IsA("BasePart") or child:IsA("UnionOperation") then
-            return false
-        end
+        if child:IsA("Model") or child:IsA("BasePart") then return false end
         if child:IsA("ProximityPrompt") then
             local text = string.lower(child.ActionText or "")
-            if text:find("pick up") or text:find("take") then
-                return false
-            end
+            if text:find("pick up") or text:find("take") then return false end
         end
     end
     return true
 end
 
-local function getAndEquipMeat(typeFilter)
+local function GetAndEquipMeat(typeFilter)
     local char = player.Character
     if not char then return nil end
     local hum = char:FindFirstChildOfClass("Humanoid")
     local bp = player:FindFirstChild("Backpack")
     if not hum or not bp then return nil end
-
-    local function isOk(t)
-        if not t or not t:IsA("Tool") then return false end
-        local n = string.lower(t.Name or "")
-        if n:find("hammer") then return false end
-        local cooked = n:find("cooked") or n:find("perfect") or n:find("[")
-        local raw = n:find("raw ")
+    
+    local function IsValid(tool)
+        if not tool or not tool:IsA("Tool") then return false end
+        local name = string.lower(tool.Name or "")
+        if name:find("hammer") then return false end
+        local cooked = name:find("cooked") or name:find("perfect") or name:find("[")
+        local raw = name:find("raw ")
         if typeFilter == "Raw" and raw and not cooked then return true end
         if typeFilter == "Cooked" and cooked then return true end
         return false
     end
-
-    for _, t in ipairs(char:GetChildren()) do
-        if isOk(t) then return t end
+    
+    for _, tool in ipairs(char:GetChildren()) do
+        if IsValid(tool) then return tool end
     end
-    for _, t in ipairs(bp:GetChildren()) do
-        if isOk(t) then
-            hum:EquipTool(t)
+    
+    for _, tool in ipairs(bp:GetChildren()) do
+        if IsValid(tool) then
+            hum:EquipTool(tool)
             task.wait(0.1)
-            return t
+            return tool
         end
     end
     return nil
 end
 
-local function countMeatStock(meatName)
-    local c = 0
-    local function scan(folder)
+local function CountMeatStock(meatName)
+    local count = 0
+    local function Scan(folder)
         if not folder then return end
         for _, item in ipairs(folder:GetChildren()) do
             if item:IsA("Tool") and string.find(string.lower(item.Name or ""), string.lower(meatName)) then
                 local match = string.match(item.Name, "%(x(%d+)%)")
-                c = c + (match and tonumber(match) or 1)
+                count = count + (match and tonumber(match) or 1)
             end
         end
     end
-    scan(player.Character)
-    scan(player:FindFirstChild("Backpack"))
-    return c
+    Scan(player.Character)
+    Scan(player:FindFirstChild("Backpack"))
+    return count
 end
 
-local function getCleanName(tool)
+local function GetCleanName(tool)
     if not tool then return "" end
     local clean = string.gsub(tool.Name, "%s*%(x%d+%)", "")
     return string.match(clean, "^%s*(.-)%s*$") or tool.Name
 end
 
-local function clearYard()
+local function CanBuy(itemName)
+    if CountMeatStock(itemName) >= Config.BuyThreshold then return false end
+    if tick() - (LastBuyTime[itemName] or 0) < 3 then return false end
+    return true
+end
+
+local function SmartBuy(itemName, isTotem)
+    if not CanBuy(itemName) then return end
+    LastBuyTime[itemName] = tick()
+    if isTotem then
+        FireRemote("BuyShopItem", itemName, false)
+    else
+        FireRemote("BuyMeat", itemName, false)
+    end
+end
+
+-- ============================================
+-- CLEAR YARD FUNCTION
+-- ============================================
+local function ClearYard()
     local char = player.Character
     if not char then return end
     local hum = char:FindFirstChildOfClass("Humanoid")
     local bp = player:FindFirstChild("Backpack")
-
-    local function equipHammer()
-        for _, t in ipairs(char:GetChildren()) do
-            if string.find(string.lower(t.Name or ""), "hammer") then
-                return true
-            end
+    
+    -- Equip hammer
+    local function EquipHammer()
+        for _, tool in ipairs(char:GetChildren()) do
+            if string.find(string.lower(tool.Name or ""), "hammer") then return true end
         end
         if bp and hum then
-            for _, t in ipairs(bp:GetChildren()) do
-                if string.find(string.lower(t.Name or ""), "hammer") then
-                    hum:EquipTool(t)
+            for _, tool in ipairs(bp:GetChildren()) do
+                if string.find(string.lower(tool.Name or ""), "hammer") then
+                    hum:EquipTool(tool)
                     task.wait(0.2)
                     return true
                 end
@@ -146,12 +240,12 @@ local function clearYard()
         end
         return false
     end
-
-    if not equipHammer() then
+    
+    if not EquipHammer() then
         RickUI:Notify({Title = "Error", Content = "Need Hammer in inventory!", Duration = 3})
         return
     end
-
+    
     local playerLots = Workspace:FindFirstChild("PlayerLots")
     if playerLots then
         local lot = playerLots:FindFirstChild(player.Name)
@@ -175,66 +269,54 @@ local function clearYard()
             end
         end
     end
+    
     RickUI:Notify({Title = "Yard Cleared", Content = "All items picked up!", Duration = 2})
 end
 
-local function canBuy(itemName)
-    if countMeatStock(itemName) >= BuyThreshold then return false end
-    if tick() - (LastBuyTime[itemName] or 0) < 3 then return false end
-    return true
-end
-
-local function smartBuy(itemName, isTotem)
-    if not canBuy(itemName) then return end
-    LastBuyTime[itemName] = tick()
-    if isTotem then
-        safeRemoteFire("BuyShopItem", itemName, false)
-    else
-        safeRemoteFire("BuyMeat", itemName, false)
-    end
-end
-
+-- ============================================
+-- MAIN LOOPS
+-- ============================================
+-- Auto Cook & Auto Plate Loop
 task.spawn(function()
-    while task.wait(ActionDelay) do
+    while task.wait(Config.ActionDelay) do
         local playerLots = Workspace:FindFirstChild("PlayerLots")
         if not playerLots then continue end
         local lot = playerLots:FindFirstChild(player.Name)
         if not lot then continue end
-
-        if Toggles.AutoCook then
-            for _, f in ipairs(lot:GetChildren()) do
-                local grillSpots = f:FindFirstChild("GrillSpots")
+        
+        -- AUTO COOK
+        if Config.AutoCook then
+            for _, furniture in ipairs(lot:GetChildren()) do
+                local grillSpots = furniture:FindFirstChild("GrillSpots")
                 if grillSpots then
                     for _, spot in ipairs(grillSpots:GetChildren()) do
-                        if isSpotEmpty(spot) then
-                            local rawMeat = getAndEquipMeat("Raw")
+                        if IsSpotEmpty(spot) then
+                            local rawMeat = GetAndEquipMeat("Raw")
                             if rawMeat then
-                                safeRemoteFire("PlaceMeat", spot, getCleanName(rawMeat))
-                                task.wait(ActionDelay)
+                                FireRemote("PlaceMeat", spot, GetCleanName(rawMeat))
+                                task.wait(Config.ActionDelay)
                             end
-                        else
-                            local state = MeatStates[spot]
-                            if state == "Perfect" then
-                                safeRemoteFire("PickupMeat", spot)
-                                MeatStates[spot] = nil
-                                task.wait(ActionDelay)
-                            end
+                        elseif MeatStates[spot] == "Perfect" then
+                            FireRemote("PickupMeat", spot)
+                            MeatStates[spot] = nil
+                            task.wait(Config.ActionDelay)
                         end
                     end
                 end
             end
         end
-
-        if Toggles.AutoPlate then
-            for _, f in ipairs(lot:GetChildren()) do
-                local plates = f:FindFirstChild("Plates")
+        
+        -- AUTO PLATE
+        if Config.AutoPlate then
+            for _, furniture in ipairs(lot:GetChildren()) do
+                local plates = furniture:FindFirstChild("Plates")
                 if plates then
                     for _, plate in ipairs(plates:GetChildren()) do
-                        if isSpotEmpty(plate) then
-                            local cookedMeat = getAndEquipMeat("Cooked")
+                        if IsSpotEmpty(plate) then
+                            local cookedMeat = GetAndEquipMeat("Cooked")
                             if cookedMeat then
-                                safeRemoteFire("PlaceMeat", plate, getCleanName(cookedMeat))
-                                task.wait(ActionDelay)
+                                FireRemote("PlaceMeat", plate, GetCleanName(cookedMeat))
+                                task.wait(Config.ActionDelay)
                             end
                         end
                     end
@@ -244,20 +326,21 @@ task.spawn(function()
     end
 end)
 
+-- Auto Buy Loop
 task.spawn(function()
     while task.wait(2) do
-        if Toggles.AutoBuy then
-            for name, enabled in pairs(BuyTargets) do
+        if Config.AutoBuyMeat then
+            for name, enabled in pairs(BuyMeatTargets) do
                 if enabled then
-                    smartBuy(name, false)
+                    SmartBuy(name, false)
                     task.wait(0.3)
                 end
             end
         end
-        if Toggles.AutoBuyTotem then
+        if Config.AutoBuyTotem then
             for name, enabled in pairs(BuyTotemTargets) do
                 if enabled then
-                    smartBuy(name, true)
+                    SmartBuy(name, true)
                     task.wait(0.3)
                 end
             end
@@ -265,64 +348,166 @@ task.spawn(function()
     end
 end)
 
+-- ============================================
+-- UI BUILD
+-- ============================================
 local Window = RickUI:CreateWindow({
     Title = "BBQ Mastery",
     SubText = "Automation Script",
     Accent = Color3.fromRGB(255, 100, 50),
-    ConfigurationSaving = {Enabled = true, FolderName = "BBQMastery", FileName = "config"}
+    ConfigurationSaving = {
+        Enabled = true,
+        FolderName = "BBQMastery",
+        FileName = "config"
+    }
 })
 
-local CookTab = Window:CreateTab({Title = "Cooking"})
+-- TAB 1: COOKING
+local CookTab = Window:CreateTab({ Title = "Cooking" })
+
 CookTab:CreateSection("Automation")
-CookTab:CreateToggle({Title = "Auto Cook", Description = "Automatically cook raw meat on grills", Default = false, Callback = function(v) Toggles.AutoCook = v end})
-CookTab:CreateToggle({Title = "Auto Plate", Description = "Automatically place cooked meat on plates", Default = false, Callback = function(v) Toggles.AutoPlate = v end})
-CookTab:CreateToggle({Title = "Auto Sell (NPC)", Description = "Automatically accept NPC offers", Default = false, Callback = function(v) Toggles.AutoSell = v end})
+CookTab:CreateToggle({
+    Title = "Auto Cook",
+    Description = "Automatically cook raw meat on grills",
+    Default = false,
+    Callback = function(v) Config.AutoCook = v end
+})
+CookTab:CreateToggle({
+    Title = "Auto Plate",
+    Description = "Automatically place cooked meat on plates",
+    Default = false,
+    Callback = function(v) Config.AutoPlate = v end
+})
+CookTab:CreateToggle({
+    Title = "Auto Sell (NPC)",
+    Description = "Automatically accept NPC offers",
+    Default = false,
+    Callback = function(v) Config.AutoSell = v end
+})
+
 CookTab:CreateSection("Timing")
-CookTab:CreateSlider({Title = "Action Delay", Description = "Delay between actions (seconds)", Min = 0.1, Max = 2.0, Default = ActionDelay, Increment = 0.05, Callback = function(v) ActionDelay = v end})
+CookTab:CreateSlider({
+    Title = "Action Delay",
+    Description = "Delay between actions (seconds)",
+    Min = 0.1,
+    Max = 2.0,
+    Default = Config.ActionDelay,
+    Increment = 0.05,
+    Callback = function(v) Config.ActionDelay = v end
+})
 
-local BuyTab = Window:CreateTab({Title = "Auto Buy"})
+-- TAB 2: AUTO BUY
+local BuyTab = Window:CreateTab({ Title = "Auto Buy" })
+
 BuyTab:CreateSection("Meat")
-BuyTab:CreateToggle({Title = "Enable Auto Buy Meat", Description = "Auto purchase selected meats", Default = false, Callback = function(v) Toggles.AutoBuy = v end})
-BuyTab:CreateSlider({Title = "Buy If Stock Below", Description = "Restock when meat count below this", Min = 1, Max = 20, Default = BuyThreshold, Increment = 1, Callback = function(v) BuyThreshold = v end})
-BuyTab:CreateDropdown({Title = "Select Meats", Description = "Choose which meats to auto buy", Options = MeatOptions, Multi = true, PlaceHolder = "Select meats...", Callback = function(selected)
-    for k in pairs(BuyTargets) do BuyTargets[k] = false end
-    if type(selected) == "table" then
-        for _, v in pairs(selected) do if BuyTargets[v] ~= nil then BuyTargets[v] = true end end
+BuyTab:CreateToggle({
+    Title = "Enable Auto Buy Meat",
+    Description = "Auto purchase selected meats",
+    Default = false,
+    Callback = function(v) Config.AutoBuyMeat = v end
+})
+BuyTab:CreateSlider({
+    Title = "Buy If Stock Below",
+    Description = "Restock when meat count below this",
+    Min = 1,
+    Max = 20,
+    Default = Config.BuyThreshold,
+    Increment = 1,
+    Callback = function(v) Config.BuyThreshold = v end
+})
+BuyTab:CreateDropdown({
+    Title = "Select Meats",
+    Description = "Choose which meats to auto buy",
+    Options = MeatOptions,
+    Multi = true,
+    PlaceHolder = "Select meats...",
+    Callback = function(selected)
+        for k in pairs(BuyMeatTargets) do BuyMeatTargets[k] = false end
+        if type(selected) == "table" then
+            for _, v in pairs(selected) do
+                if BuyMeatTargets[v] ~= nil then BuyMeatTargets[v] = true end
+            end
+        end
     end
-end})
+})
+
 BuyTab:CreateSection("Totem")
-BuyTab:CreateToggle({Title = "Enable Auto Buy Totem", Description = "Auto purchase selected totems", Default = false, Callback = function(v) Toggles.AutoBuyTotem = v end})
-BuyTab:CreateDropdown({Title = "Select Totems", Description = "Choose which totems to auto buy", Options = TotemOptions, Multi = true, PlaceHolder = "Select totems...", Callback = function(selected)
-    for k in pairs(BuyTotemTargets) do BuyTotemTargets[k] = false end
-    if type(selected) == "table" then
-        for _, v in pairs(selected) do if BuyTotemTargets[v] ~= nil then BuyTotemTargets[v] = true end end
+BuyTab:CreateToggle({
+    Title = "Enable Auto Buy Totem",
+    Description = "Auto purchase selected totems",
+    Default = false,
+    Callback = function(v) Config.AutoBuyTotem = v end
+})
+BuyTab:CreateDropdown({
+    Title = "Select Totems",
+    Description = "Choose which totems to auto buy",
+    Options = TotemOptions,
+    Multi = true,
+    PlaceHolder = "Select totems...",
+    Callback = function(selected)
+        for k in pairs(BuyTotemTargets) do BuyTotemTargets[k] = false end
+        if type(selected) == "table" then
+            for _, v in pairs(selected) do
+                if BuyTotemTargets[v] ~= nil then BuyTotemTargets[v] = true end
+            end
+        end
     end
-end})
+})
 
-local ExpTab = Window:CreateTab({Title = "Exploits"})
+-- TAB 3: EXPLOITS
+local ExpTab = Window:CreateTab({ Title = "Exploits" })
+
 ExpTab:CreateSection("Interact")
-ExpTab:CreateToggle({Title = "Instant Interact", Description = "No hold time for prompts", Default = false, Callback = function(v) Toggles.InstantPrompt = v end})
-ExpTab:CreateSection("Yard")
-ExpTab:CreateButton({Title = "Clear Entire Yard", Description = "Pick up all items in your yard", Callback = clearYard})
+ExpTab:CreateToggle({
+    Title = "Instant Interact",
+    Description = "No hold time for prompts",
+    Default = false,
+    Callback = function(v) Config.InstantPrompt = v end
+})
 
-local InfoTab = Window:CreateTab({Title = "Info"})
+ExpTab:CreateSection("Yard")
+ExpTab:CreateButton({
+    Title = "Clear Entire Yard",
+    Description = "Pick up all items in your yard",
+    Callback = ClearYard
+})
+
+-- TAB 4: INFO
+local InfoTab = Window:CreateTab({ Title = "Info" })
+
 InfoTab:CreateSection("About")
-InfoTab:CreateParagraph({Title = "BBQ Mastery", Content = [[BBQ Mastery Automation Script
-    
+InfoTab:CreateParagraph({
+    Title = "BBQ Mastery",
+    Content = [[
+BBQ Mastery Automation Script
+
 Features:
 • Auto Cook - Cooks raw meat automatically
 • Auto Plate - Places cooked meat on plates
 • Auto Sell - Accepts NPC offers
 • Auto Buy - Restocks meats/totems
 • Instant Interact - Skip hold time
-    
-Made with Rick UI Library]]})
+
+Made with Rick UI Library
+by rickyaditya511
+    ]]
+})
+
 InfoTab:CreateSection("Tips")
 InfoTab:CreateLabel("💡 Have Hammer in inventory for Clear Yard", "Left")
 InfoTab:CreateLabel("💡 Auto Buy restocks every 3 seconds", "Left")
 InfoTab:CreateLabel("💡 Keep Backpack open for faster equipping", "Left")
+InfoTab:CreateLabel("💡 Perfect meat sells for most profit", "Left")
 
-RickUI:Notify({Title = "BBQ Mastery", Content = "Script loaded successfully!", Duration = 3, Icon = "14554547135"})
+-- ============================================
+-- NOTIFICATION
+-- ============================================
+RickUI:Notify({
+    Title = "BBQ Mastery",
+    Content = "Script loaded successfully!",
+    Duration = 3,
+    Icon = "14554547135"
+})
 
-print("✅ BBQ Mastery - Rick UI Library Edition Loaded!")
+print("✅ BBQ Mastery - Rebuild Version Loaded!")
 print("📌 Use RightShift to toggle UI")
