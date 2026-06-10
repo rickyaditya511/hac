@@ -17,7 +17,6 @@ local CurrentConfigName = "Default"
 local SelectedConfigName = "Default"
 local pendingAutoLoad = nil
 
--- Pastikan folder config ada
 if not isfolder then
     print("⚠️ Your executor doesn't support saving configs!")
     ConfigFolder = nil
@@ -27,7 +26,6 @@ else
     end
 end
 
--- Fungsi untuk mendapatkan daftar semua config
 local function getConfigList()
     if not ConfigFolder then return {} end
     local configs = {}
@@ -42,7 +40,6 @@ local function getConfigList()
     return configs
 end
 
--- Fungsi untuk menyimpan config (overwrite)
 local function saveConfig(configName, overwrite)
     if not ConfigFolder then 
         Library:Notify({Title = "Error", Description = "Executor tidak support save config!", Time = 3})
@@ -92,7 +89,6 @@ local function saveConfig(configName, overwrite)
     end
 end
 
--- Fungsi untuk membuat config baru
 local function createConfig(configName)
     if not ConfigFolder then return false end
     if configName == nil or configName == "" then
@@ -107,7 +103,6 @@ local function createConfig(configName)
     return saveConfig(configName, true)
 end
 
--- Fungsi untuk load config (akan dipanggil setelah UI siap)
 local function loadConfig(configName, skipUIDelay)
     if not ConfigFolder then return false end
     
@@ -126,7 +121,6 @@ local function loadConfig(configName, skipUIDelay)
         return false
     end
     
-    -- Apply loaded data ke Toggles
     if data.toggles then
         for k, v in pairs(data.toggles) do
             if Toggles[k] ~= nil then
@@ -142,7 +136,6 @@ local function loadConfig(configName, skipUIDelay)
     if data.totemBuyList then BuyTotemTargets = data.totemBuyList end
     if data.buyTargets then BuyTargets = data.buyTargets end
     
-    -- Update UI elements jika sudah ada
     if not skipUIDelay then
         if windowSliders then
             if windowSliders.stackAmount then windowSliders.stackAmount:SetValue(StackAmount) end
@@ -194,7 +187,6 @@ local function loadConfig(configName, skipUIDelay)
     return true
 end
 
--- Fungsi untuk delete config
 local function deleteConfig(configName)
     if not ConfigFolder then return false end
     
@@ -233,7 +225,6 @@ local function deleteConfig(configName)
     end
 end
 
--- Auto-load functions
 local function setAutoLoadConfig(configName)
     if not ConfigFolder then return false end
     if configName and configName ~= "" then
@@ -279,13 +270,11 @@ local ActionDelay = 0.3
 local TotemBuyDelay = 2.0
 local MeatStates = {}
 
--- Store UI element references
 local windowToggleElements = {}
 local windowSliders = {}
 local windowDropdowns = {}
 local windowLabels = {}
 
--- Daftar item
 local MeatOptions = {
     "Raw Hotdog", "Raw Burger", "Raw Chicken", "Raw Salmon", 
     "Raw Ribs", "Raw Prime Rib", "Raw Brisket", "Raw Lobster Tail",
@@ -309,7 +298,6 @@ for _, t in ipairs(TotemData) do
     table.insert(TotemOptions, t.name)
 end
 
--- Fetch dinamis untuk meat
 pcall(function()
     if ReplicatedStorage:FindFirstChild("Meats") then
         for _, rarity in ipairs(ReplicatedStorage.Meats:GetChildren()) do
@@ -324,8 +312,6 @@ end)
 
 local BuyTargets = {MeatOptions[1]}
 local BuyTotemTargets = {}
-
--- Round-robin index untuk totem buying
 local totemBuyIndex = 1
 
 -- == Anti AFK ==
@@ -409,7 +395,6 @@ local function clearYard()
     end
 end
 
--- == Auto Buy Totem (Round-robin) ==
 local function getNextTotemToBuy()
     if #BuyTotemTargets == 0 then return nil end
     local totem = BuyTotemTargets[totemBuyIndex]
@@ -582,7 +567,6 @@ task.spawn(function()
     end
 end)
 
--- Auto Buy Meat Loop
 task.spawn(function()
     while task.wait(1.5) do
         if Toggles.AutoBuy and #BuyTargets > 0 then
@@ -596,7 +580,6 @@ task.spawn(function()
     end
 end)
 
--- Auto Buy Totem Loop (dengan delay terpisah)
 task.spawn(function()
     while task.wait(TotemBuyDelay) do
         if Toggles.AutoBuyTotem and #BuyTotemTargets > 0 then
@@ -609,13 +592,12 @@ task.spawn(function()
 end)
 
 -- == MODERN GUI OBSIDIAN ==
--- Simpan auto-load config name sebelum UI dibuat
 local autoLoadName = getAutoLoadConfig()
 if autoLoadName and autoLoadName ~= "" then
     pendingAutoLoad = autoLoadName
 end
 
--- Buat window dengan icon kucing (warna akan mengikuti accent color)
+-- ========== WINDOW DENGAN ICON CANNABIS (DAUN GANJA) ==========
 local Window = Library:CreateWindow({
     Title = "BBQ MASTERY",
     Footer = "Auto Cook | Auto Sell | Auto Totem | Config System",
@@ -625,7 +607,7 @@ local Window = Library:CreateWindow({
     EnableSidebarResize = true,
     ShowCustomCursor = true,
     Font = Enum.Font.GothamBold,
-    Icon = "cat",
+    Icon = "cannabis",  -- Icon daun ganja dari Lucide (PASTI MUNCUL)
     CornerRadius = 8,
     NotifySide = "Right",
 })
@@ -633,7 +615,6 @@ local Window = Library:CreateWindow({
 -- ========== TAB 1: BBQ Automation ==========
 local MeatTab = Window:AddTab("BBQ", "flame")
 
--- Left Groupbox - Automation (icon gear)
 local AutoGroup = MeatTab:AddLeftGroupbox("Automation", "settings")
 
 local autoCookToggle = AutoGroup:AddToggle("Auto Cook", {
@@ -661,7 +642,6 @@ local autoSellToggle = AutoGroup:AddToggle("Auto Sell", {
 })
 windowToggleElements.AutoSell = autoSellToggle
 
--- Right Groupbox - Meat Management (icon drumstick)
 local MeatGroup = MeatTab:AddRightGroupbox("Meat Management", "drumstick")
 
 local autoBuyToggle = MeatGroup:AddToggle("Auto Buy Meat", {
@@ -714,7 +694,6 @@ windowSliders.actionDelay = actionDelaySlider
 -- ========== TAB 2: Totems ==========
 local TotemTab = Window:AddTab("Totems", "diamond")
 
--- Left Groupbox - Totem Buying (icon shopping-cart)
 local TotemBuyGroup = TotemTab:AddLeftGroupbox("Totem Buying", "shopping-cart")
 
 local autoBuyTotemToggle = TotemBuyGroup:AddToggle("Auto Buy Totems", {
@@ -755,7 +734,6 @@ windowSliders.totemBuyDelay = totemDelaySlider
 -- ========== TAB 3: Exploits ==========
 local ExploitTab = Window:AddTab("Exploits", "zap")
 
--- Left Groupbox - Advanced Exploits (icon zap)
 local ExploitGroup = ExploitTab:AddLeftGroupbox("Advanced Exploits", "zap")
 
 local stackToggle = ExploitGroup:AddToggle("Totem Multi-Place", {
@@ -813,7 +791,6 @@ ExploitGroup:AddButton("Auto Clear Yard", {
 -- ========== TAB 4: Info ==========
 local InfoTab = Window:AddTab("Info", "info")
 
--- Left Groupbox - Live Status (icon activity)
 local StatusGroup = InfoTab:AddLeftGroupbox("Live Status", "activity")
 
 local statusLabel = StatusGroup:AddLabel("")
@@ -854,7 +831,6 @@ task.spawn(function()
     end
 end)
 
--- Right Groupbox - Tips (icon lightbulb)
 local TipsGroup = InfoTab:AddRightGroupbox("Tips", "lightbulb")
 TipsGroup:AddLabel("• Cook only works on owned grills")
 TipsGroup:AddLabel("• Clear yard requires Hammer")
@@ -863,7 +839,6 @@ TipsGroup:AddLabel("• Totem buy uses round-robin rotation")
 TipsGroup:AddLabel("• Auto Sell accepts NPC offers instantly")
 TipsGroup:AddLabel("• Save configs to keep your settings!")
 
--- Right Groupbox - Credits (icon award)
 local CreditsGroup = InfoTab:AddRightGroupbox("Credits", "award")
 CreditsGroup:AddLabel("BBQ Mastery v16.0")
 CreditsGroup:AddLabel("Powered by Obsidian UI")
@@ -876,7 +851,6 @@ CreditsGroup:AddLabel("Config System: Active")
 -- ========== TAB 5: Config ==========
 local ConfigTab = Window:AddTab("Config", "settings")
 
--- Left Groupbox - Config Management (icon folder)
 local ConfigGroup = ConfigTab:AddLeftGroupbox("Config Management", "folder")
 
 local currentConfigLabel = ConfigGroup:AddLabel("Current: " .. CurrentConfigName)
@@ -937,8 +911,7 @@ ConfigGroup:AddButton("Save Config", {
             Library:Notify({Title = "Error", Description = "Select a config from list or enter name!", Time = 2})
             return
         end
-        if saveConfig(targetName, true) then
-            CurrentConfigName = targetName
+        if saveConfig(targetName, true) then            CurrentConfigName = targetName
             SelectedConfigName = targetName
             currentConfigLabel:SetText("Current: " .. CurrentConfigName)
             local newList = getConfigList()
@@ -1010,7 +983,7 @@ ConfigGroup:AddButton("Clear Auto-Load", {
     end
 })
 
--- ========== LOAD AUTO-LOAD SETELAH UI SIAP ==========
+-- ========== LOAD AUTO-LOAD ==========
 if pendingAutoLoad then
     task.spawn(function()
         task.wait(0.5)
@@ -1023,9 +996,9 @@ end
 -- Initial notification
 Library:Notify({
     Title = "BBQ Mastery",
-    Description = "Script loaded with Groupbox Icons!",
+    Description = "Script loaded with Cannabis Icon! 🌿",
     Time = 3
 })
 
-print("✅ BBQ Mastery v16.0 (All Groupboxes Have Icons) Loaded!")
+print("✅ BBQ Mastery v16.0 (Cannabis Icon) Loaded!")
 print("👑 Script By Rick Hub")
