@@ -1,5 +1,5 @@
 -- ============================================
--- BBQ MASTERY - REBUILD VERSION
+-- BBQ MASTERY - FIXED VERSION
 -- Using Rick UI Library
 -- ============================================
 
@@ -66,7 +66,7 @@ local TotemOptions = {
     "Luck Totem", "Diamond Totem", "Ruby Totem"
 }
 
--- Dynamic fetch
+-- Dynamic fetch with pcall
 pcall(function()
     local MeatsFolder = ReplicatedStorage:FindFirstChild("Meats")
     if MeatsFolder then
@@ -131,7 +131,7 @@ if Remotes then
 end
 
 -- ============================================
--- HELPER FUNCTIONS
+-- HELPER FUNCTIONS (FIXED)
 -- ============================================
 local function IsSpotEmpty(spot)
     if not spot then return true end
@@ -182,9 +182,13 @@ local function CountMeatStock(meatName)
     local function Scan(folder)
         if not folder then return end
         for _, item in ipairs(folder:GetChildren()) do
-            if item:IsA("Tool") and string.find(string.lower(item.Name or ""), string.lower(meatName)) then
-                local match = string.match(item.Name, "%(x(%d+)%)")
-                count = count + (match and tonumber(match) or 1)
+            if item:IsA("Tool") then
+                local itemName = string.lower(item.Name or "")
+                local targetName = string.lower(meatName)
+                if string.find(itemName, targetName, 1, true) then
+                    local match = string.match(item.Name, "%(x(%d+)%)")
+                    count = count + (match and tonumber(match) or 1)
+                end
             end
         end
     end
@@ -195,8 +199,12 @@ end
 
 local function GetCleanName(tool)
     if not tool then return "" end
-    local clean = string.gsub(tool.Name, "%s*%(x%d+%)", "")
-    return string.match(clean, "^%s*(.-)%s*$") or tool.Name
+    local name = tool.Name
+    -- Remove (x123) suffix safely
+    name = name:gsub("%s*%([xX]%d+%)", "")
+    -- Trim whitespace
+    name = name:match("^%s*(.-)%s*$") or name
+    return name
 end
 
 local function CanBuy(itemName)
@@ -224,7 +232,6 @@ local function ClearYard()
     local hum = char:FindFirstChildOfClass("Humanoid")
     local bp = player:FindFirstChild("Backpack")
     
-    -- Equip hammer
     local function EquipHammer()
         for _, tool in ipairs(char:GetChildren()) do
             if string.find(string.lower(tool.Name or ""), "hammer") then return true end
@@ -276,7 +283,6 @@ end
 -- ============================================
 -- MAIN LOOPS
 -- ============================================
--- Auto Cook & Auto Plate Loop
 task.spawn(function()
     while task.wait(Config.ActionDelay) do
         local playerLots = Workspace:FindFirstChild("PlayerLots")
@@ -284,7 +290,6 @@ task.spawn(function()
         local lot = playerLots:FindFirstChild(player.Name)
         if not lot then continue end
         
-        -- AUTO COOK
         if Config.AutoCook then
             for _, furniture in ipairs(lot:GetChildren()) do
                 local grillSpots = furniture:FindFirstChild("GrillSpots")
@@ -306,7 +311,6 @@ task.spawn(function()
             end
         end
         
-        -- AUTO PLATE
         if Config.AutoPlate then
             for _, furniture in ipairs(lot:GetChildren()) do
                 local plates = furniture:FindFirstChild("Plates")
@@ -326,7 +330,6 @@ task.spawn(function()
     end
 end)
 
--- Auto Buy Loop
 task.spawn(function()
     while task.wait(2) do
         if Config.AutoBuyMeat then
@@ -362,152 +365,49 @@ local Window = RickUI:CreateWindow({
     }
 })
 
--- TAB 1: COOKING
 local CookTab = Window:CreateTab({ Title = "Cooking" })
-
 CookTab:CreateSection("Automation")
-CookTab:CreateToggle({
-    Title = "Auto Cook",
-    Description = "Automatically cook raw meat on grills",
-    Default = false,
-    Callback = function(v) Config.AutoCook = v end
-})
-CookTab:CreateToggle({
-    Title = "Auto Plate",
-    Description = "Automatically place cooked meat on plates",
-    Default = false,
-    Callback = function(v) Config.AutoPlate = v end
-})
-CookTab:CreateToggle({
-    Title = "Auto Sell (NPC)",
-    Description = "Automatically accept NPC offers",
-    Default = false,
-    Callback = function(v) Config.AutoSell = v end
-})
-
+CookTab:CreateToggle({Title = "Auto Cook", Description = "Automatically cook raw meat on grills", Default = false, Callback = function(v) Config.AutoCook = v end})
+CookTab:CreateToggle({Title = "Auto Plate", Description = "Automatically place cooked meat on plates", Default = false, Callback = function(v) Config.AutoPlate = v end})
+CookTab:CreateToggle({Title = "Auto Sell (NPC)", Description = "Automatically accept NPC offers", Default = false, Callback = function(v) Config.AutoSell = v end})
 CookTab:CreateSection("Timing")
-CookTab:CreateSlider({
-    Title = "Action Delay",
-    Description = "Delay between actions (seconds)",
-    Min = 0.1,
-    Max = 2.0,
-    Default = Config.ActionDelay,
-    Increment = 0.05,
-    Callback = function(v) Config.ActionDelay = v end
-})
+CookTab:CreateSlider({Title = "Action Delay", Description = "Delay between actions (seconds)", Min = 0.1, Max = 2.0, Default = Config.ActionDelay, Increment = 0.05, Callback = function(v) Config.ActionDelay = v end})
 
--- TAB 2: AUTO BUY
 local BuyTab = Window:CreateTab({ Title = "Auto Buy" })
-
 BuyTab:CreateSection("Meat")
-BuyTab:CreateToggle({
-    Title = "Enable Auto Buy Meat",
-    Description = "Auto purchase selected meats",
-    Default = false,
-    Callback = function(v) Config.AutoBuyMeat = v end
-})
-BuyTab:CreateSlider({
-    Title = "Buy If Stock Below",
-    Description = "Restock when meat count below this",
-    Min = 1,
-    Max = 20,
-    Default = Config.BuyThreshold,
-    Increment = 1,
-    Callback = function(v) Config.BuyThreshold = v end
-})
-BuyTab:CreateDropdown({
-    Title = "Select Meats",
-    Description = "Choose which meats to auto buy",
-    Options = MeatOptions,
-    Multi = true,
-    PlaceHolder = "Select meats...",
-    Callback = function(selected)
-        for k in pairs(BuyMeatTargets) do BuyMeatTargets[k] = false end
-        if type(selected) == "table" then
-            for _, v in pairs(selected) do
-                if BuyMeatTargets[v] ~= nil then BuyMeatTargets[v] = true end
-            end
-        end
+BuyTab:CreateToggle({Title = "Enable Auto Buy Meat", Description = "Auto purchase selected meats", Default = false, Callback = function(v) Config.AutoBuyMeat = v end})
+BuyTab:CreateSlider({Title = "Buy If Stock Below", Description = "Restock when meat count below this", Min = 1, Max = 20, Default = Config.BuyThreshold, Increment = 1, Callback = function(v) Config.BuyThreshold = v end})
+BuyTab:CreateDropdown({Title = "Select Meats", Description = "Choose which meats to auto buy", Options = MeatOptions, Multi = true, PlaceHolder = "Select meats...", Callback = function(selected)
+    for k in pairs(BuyMeatTargets) do BuyMeatTargets[k] = false end
+    if type(selected) == "table" then
+        for _, v in pairs(selected) do if BuyMeatTargets[v] ~= nil then BuyMeatTargets[v] = true end end
     end
-})
-
+end})
 BuyTab:CreateSection("Totem")
-BuyTab:CreateToggle({
-    Title = "Enable Auto Buy Totem",
-    Description = "Auto purchase selected totems",
-    Default = false,
-    Callback = function(v) Config.AutoBuyTotem = v end
-})
-BuyTab:CreateDropdown({
-    Title = "Select Totems",
-    Description = "Choose which totems to auto buy",
-    Options = TotemOptions,
-    Multi = true,
-    PlaceHolder = "Select totems...",
-    Callback = function(selected)
-        for k in pairs(BuyTotemTargets) do BuyTotemTargets[k] = false end
-        if type(selected) == "table" then
-            for _, v in pairs(selected) do
-                if BuyTotemTargets[v] ~= nil then BuyTotemTargets[v] = true end
-            end
-        end
+BuyTab:CreateToggle({Title = "Enable Auto Buy Totem", Description = "Auto purchase selected totems", Default = false, Callback = function(v) Config.AutoBuyTotem = v end})
+BuyTab:CreateDropdown({Title = "Select Totems", Description = "Choose which totems to auto buy", Options = TotemOptions, Multi = true, PlaceHolder = "Select totems...", Callback = function(selected)
+    for k in pairs(BuyTotemTargets) do BuyTotemTargets[k] = false end
+    if type(selected) == "table" then
+        for _, v in pairs(selected) do if BuyTotemTargets[v] ~= nil then BuyTotemTargets[v] = true end end
     end
-})
+end})
 
--- TAB 3: EXPLOITS
 local ExpTab = Window:CreateTab({ Title = "Exploits" })
-
 ExpTab:CreateSection("Interact")
-ExpTab:CreateToggle({
-    Title = "Instant Interact",
-    Description = "No hold time for prompts",
-    Default = false,
-    Callback = function(v) Config.InstantPrompt = v end
-})
-
+ExpTab:CreateToggle({Title = "Instant Interact", Description = "No hold time for prompts", Default = false, Callback = function(v) Config.InstantPrompt = v end})
 ExpTab:CreateSection("Yard")
-ExpTab:CreateButton({
-    Title = "Clear Entire Yard",
-    Description = "Pick up all items in your yard",
-    Callback = ClearYard
-})
+ExpTab:CreateButton({Title = "Clear Entire Yard", Description = "Pick up all items in your yard", Callback = ClearYard})
 
--- TAB 4: INFO
 local InfoTab = Window:CreateTab({ Title = "Info" })
-
 InfoTab:CreateSection("About")
-InfoTab:CreateParagraph({
-    Title = "BBQ Mastery",
-    Content = [[
-BBQ Mastery Automation Script
-
-Features:
-• Auto Cook - Cooks raw meat automatically
-• Auto Plate - Places cooked meat on plates
-• Auto Sell - Accepts NPC offers
-• Auto Buy - Restocks meats/totems
-• Instant Interact - Skip hold time
-
-Made with Rick UI Library
-by rickyaditya511
-    ]]
-})
-
+InfoTab:CreateParagraph({Title = "BBQ Mastery", Content = "BBQ Mastery Automation Script\n\nFeatures:\n• Auto Cook - Cooks raw meat automatically\n• Auto Plate - Places cooked meat on plates\n• Auto Sell - Accepts NPC offers\n• Auto Buy - Restocks meats/totems\n• Instant Interact - Skip hold time\n\nMade with Rick UI Library\nby rickyaditya511"})
 InfoTab:CreateSection("Tips")
 InfoTab:CreateLabel("💡 Have Hammer in inventory for Clear Yard", "Left")
 InfoTab:CreateLabel("💡 Auto Buy restocks every 3 seconds", "Left")
 InfoTab:CreateLabel("💡 Keep Backpack open for faster equipping", "Left")
 InfoTab:CreateLabel("💡 Perfect meat sells for most profit", "Left")
 
--- ============================================
--- NOTIFICATION
--- ============================================
-RickUI:Notify({
-    Title = "BBQ Mastery",
-    Content = "Script loaded successfully!",
-    Duration = 3,
-    Icon = "14554547135"
-})
+RickUI:Notify({Title = "BBQ Mastery", Content = "Script loaded successfully!", Duration = 3, Icon = "14554547135"})
 
-print("✅ BBQ Mastery - Rebuild Version Loaded!")
+print("✅ BBQ Mastery - Fixed Version Loaded!")
 print("📌 Use RightShift to toggle UI")
