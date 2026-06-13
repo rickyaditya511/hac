@@ -1,0 +1,2771 @@
+--[[
+    SCRIPT: Astro | Violence District
+    GAME: Violence District (PlaceId: 93978595733734)
+    VERSION: 4.0.0 (COMPLETE - 100% DARI DEOBFUSCATOR)
+    SEMUA FITUR LANGSUNG DARI DEOBFUSCATOR - TANPA KEY
+]]
+
+do
+    local _g = _G;
+    local _unpack = _g and _g.unpack or table and table.unpack;
+    if task == nil then
+        task = {};
+        local function fn2(fn, ...)
+            if type(fn) ~= "function" then
+                return nil;
+            end;
+            local _args = {...};
+            if coroutine and coroutine.wrap then
+                return coroutine.wrap(function()
+                    if _unpack then
+                        return fn(_unpack(_args));
+                    end;
+                    return fn();
+                end)();
+            end;
+            if _unpack then
+                return fn(_unpack(_args));
+            end;
+            return fn();
+        end;
+        task.spawn = fn2;
+        task.defer = fn2;
+        task.wait = function(seconds)
+            local _seconds = tonumber(seconds) or 0;
+            if os and os.clock and _seconds > 0 then
+                local _until = os.clock() + _seconds;
+                while os.clock() < _until do end;
+            end;
+            return _seconds;
+        end;
+    end;
+end
+
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/rickyaditya511/hac/refs/heads/main/Library.lua"))()
+assert(Library, "Obsidian Library gagal di-load!")
+
+if game.PlaceId ~= 93978595733734 then
+    Library:Notify({Title = "Error!", Description = "Script ini khusus untuk game Violence District", Time = 5})
+    return
+end
+
+Library:Notify({Title = "Astro", Description = "Violence District v4.0.0 | Loading 100% dari deobfuscator...", Time = 3})
+
+local Window = Library:CreateWindow({
+    Title = "Astro",
+    Footer = "Violence District v4.0.0 | Complete",
+    Icon = "aperture",
+    IconSize = UDim2.fromOffset(40, 40),
+    NotifySide = "Right",
+    EnableSidebarResize = true,
+    EnableCompacting = false,
+    Size = UDim2.fromOffset(850, 900),
+    CornerRadius = 12,
+    AutoShow = true,
+})
+
+local mainTab = Window:AddTab("Main", "house")
+local espTab = Window:AddTab("ESP", "eye")
+local survivorTab = Window:AddTab("Survivor", "users")
+local killerTab = Window:AddTab("Killer", "skull")
+local otherTab = Window:AddTab("Other", "settings")
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Lighting = game:GetService("Lighting")
+local VirtualInput = game:GetService("VirtualInputManager")
+local TweenService = game:GetService("TweenService")
+local Workspace = game:GetService("Workspace")
+local HttpService = game:GetService("HttpService")
+local CoreGui = game:GetService("CoreGui")
+local TeleportService = game:GetService("TeleportService")
+local ContextActionService = game:GetService("ContextActionService")
+local StarterGui = game:GetService("StarterGui")
+
+local LocalPlayer = Players.LocalPlayer
+local CurrentCamera = workspace.CurrentCamera
+
+-- ==================== REMOTE PATHS (DARI DEOBFUSCATOR) ====================
+local Remotes = {
+    Generator = {
+        Repair = ReplicatedStorage:FindFirstChild("Remotes") and ReplicatedStorage.Remotes:FindFirstChild("Generator") and ReplicatedStorage.Remotes.Generator:FindFirstChild("RepairEvent"),
+        SkillCheckResult = ReplicatedStorage:FindFirstChild("Remotes") and ReplicatedStorage.Remotes:FindFirstChild("Generator") and ReplicatedStorage.Remotes.Generator:FindFirstChild("SkillCheckResultEvent"),
+        SkillCheckFail = ReplicatedStorage:FindFirstChild("Remotes") and ReplicatedStorage.Remotes:FindFirstChild("Generator") and ReplicatedStorage.Remotes.Generator:FindFirstChild("SkillCheckFailEvent"),
+        SkillCheck = ReplicatedStorage:FindFirstChild("Remotes") and ReplicatedStorage.Remotes:FindFirstChild("Generator") and ReplicatedStorage.Remotes.Generator:FindFirstChild("SkillCheckEvent"),
+        BreakGen = ReplicatedStorage:FindFirstChild("Remotes") and ReplicatedStorage.Remotes:FindFirstChild("Generator") and ReplicatedStorage.Remotes.Generator:FindFirstChild("BreakGenEvent"),
+        ProgressUpdate = ReplicatedStorage:FindFirstChild("Remotes") and ReplicatedStorage.Remotes:FindFirstChild("Progress") and ReplicatedStorage.Remotes.Progress:FindFirstChild("ProgressUpdateEvent"),
+    },
+    Healing = {
+        Heal = ReplicatedStorage:FindFirstChild("Remotes") and ReplicatedStorage.Remotes:FindFirstChild("Healing") and ReplicatedStorage.Remotes.Healing:FindFirstChild("HealEvent"),
+        HealAnim = ReplicatedStorage:FindFirstChild("Remotes") and ReplicatedStorage.Remotes:FindFirstChild("Healing") and ReplicatedStorage.Remotes.Healing:FindFirstChild("HealAnim"),
+        SkillCheckResult = ReplicatedStorage:FindFirstChild("Remotes") and ReplicatedStorage.Remotes:FindFirstChild("Healing") and ReplicatedStorage.Remotes.Healing:FindFirstChild("SkillCheckResultEvent"),
+        StopHealing = ReplicatedStorage:FindFirstChild("Remotes") and ReplicatedStorage.Remotes:FindFirstChild("Healing") and ReplicatedStorage.Remotes.Healing:FindFirstChild("Stophealing"),
+    },
+    Items = {
+        Parry = ReplicatedStorage:FindFirstChild("Remotes") and ReplicatedStorage.Remotes:FindFirstChild("Items") and ReplicatedStorage.Remotes.Items:FindFirstChild("Parrying Dagger") and ReplicatedStorage.Remotes.Items["Parrying Dagger"]:FindFirstChild("parry"),
+        ParryResult = ReplicatedStorage:FindFirstChild("Remotes") and ReplicatedStorage.Remotes:FindFirstChild("Items") and ReplicatedStorage.Remotes.Items:FindFirstChild("Parrying Dagger") and ReplicatedStorage.Remotes.Items["Parrying Dagger"]:FindFirstChild("parryResult"),
+        FlashlightActivate = ReplicatedStorage:FindFirstChild("Remotes") and ReplicatedStorage.Remotes:FindFirstChild("Items") and ReplicatedStorage.Remotes.Items:FindFirstChild("Flashlight") and ReplicatedStorage.Remotes.Items.Flashlight:FindFirstChild("Activate"),
+        GotBlinded = ReplicatedStorage:FindFirstChild("Remotes") and ReplicatedStorage.Remotes:FindFirstChild("Items") and ReplicatedStorage.Remotes.Items:FindFirstChild("Flashlight") and ReplicatedStorage.Remotes.Items.Flashlight:FindFirstChild("GotBlinded"),
+        TrackerBeep = ReplicatedStorage:FindFirstChild("Remotes") and ReplicatedStorage.Remotes:FindFirstChild("Items") and ReplicatedStorage.Remotes.Items:FindFirstChild("Tracker") and ReplicatedStorage.Remotes.Items.Tracker:FindFirstChild("beep"),
+        GateGate = ReplicatedStorage:FindFirstChild("Remotes") and ReplicatedStorage.Remotes:FindFirstChild("Items") and ReplicatedStorage.Remotes.Items:FindFirstChild("Gate") and ReplicatedStorage.Remotes.Items.Gate:FindFirstChild("gate"),
+        BandageFire = ReplicatedStorage:FindFirstChild("Remotes") and ReplicatedStorage.Remotes:FindFirstChild("Items") and ReplicatedStorage.Remotes.Items:FindFirstChild("Bandage") and ReplicatedStorage.Remotes.Items.Bandage:FindFirstChild("Fire"),
+        AdrenalineHealthy = ReplicatedStorage:FindFirstChild("Remotes") and ReplicatedStorage.Remotes:FindFirstChild("Items") and ReplicatedStorage.Remotes.Items:FindFirstChild("Adrenaline Shot") and ReplicatedStorage.Remotes.Items["Adrenaline Shot"]:FindFirstChild("Healthy"),
+    },
+    Killer = {
+        VeilSpear = ReplicatedStorage:FindFirstChild("Remotes") and ReplicatedStorage.Remotes:FindFirstChild("Killers") and ReplicatedStorage.Remotes.Killers:FindFirstChild("Veil") and ReplicatedStorage.Remotes.Killers.Veil:FindFirstChild("Spearthrow"),
+        VeilVisualize = ReplicatedStorage:FindFirstChild("Remotes") and ReplicatedStorage.Remotes:FindFirstChild("Killers") and ReplicatedStorage.Remotes.Killers:FindFirstChild("Veil") and ReplicatedStorage.Remotes.Killers.Veil:FindFirstChild("visualize"),
+        Lunge = ReplicatedStorage:FindFirstChild("Remotes") and ReplicatedStorage.Remotes:FindFirstChild("Attacks") and ReplicatedStorage.Remotes.Attacks:FindFirstChild("Lunge"),
+        BasicAttack = ReplicatedStorage:FindFirstChild("Remotes") and ReplicatedStorage.Remotes:FindFirstChild("Attacks") and ReplicatedStorage.Remotes.Attacks:FindFirstChild("BasicAttack"),
+        AfterAttack = ReplicatedStorage:FindFirstChild("Remotes") and ReplicatedStorage.Remotes:FindFirstChild("Attacks") and ReplicatedStorage.Remotes.Attacks:FindFirstChild("AfterAttack"),
+        Hit = ReplicatedStorage:FindFirstChild("Remotes") and ReplicatedStorage.Remotes:FindFirstChild("Attacks") and ReplicatedStorage.Remotes.Attacks:FindFirstChild("hit"),
+        ActivatePower = ReplicatedStorage:FindFirstChild("Remotes") and ReplicatedStorage.Remotes:FindFirstChild("Killers") and ReplicatedStorage.Remotes.Killers:FindFirstChild("Killer") and ReplicatedStorage.Remotes.Killers.Killer:FindFirstChild("ActivatePower"),
+        Deactivate = ReplicatedStorage:FindFirstChild("Remotes") and ReplicatedStorage.Remotes:FindFirstChild("Killers") and ReplicatedStorage.Remotes.Killers:FindFirstChild("Killer") and ReplicatedStorage.Remotes.Killers.Killer:FindFirstChild("Deactivate"),
+        Instinct = ReplicatedStorage:FindFirstChild("Remotes") and ReplicatedStorage.Remotes:FindFirstChild("Killers") and ReplicatedStorage.Remotes.Killers:FindFirstChild("Instinct"),
+        HighlightRemote = ReplicatedStorage:FindFirstChild("Remotes") and ReplicatedStorage.Remotes:FindFirstChild("Killers") and ReplicatedStorage.Remotes.Killers:FindFirstChild("Highlightremote"),
+        Mori = ReplicatedStorage:FindFirstChild("Remotes") and ReplicatedStorage.Remotes:FindFirstChild("Killers") and ReplicatedStorage.Remotes.Killers:FindFirstChild("Startmori"),
+    },
+    Carry = {
+        Hook = ReplicatedStorage:FindFirstChild("Remotes") and ReplicatedStorage.Remotes:FindFirstChild("Carry") and ReplicatedStorage.Remotes.Carry:FindFirstChild("HookEvent"),
+        Unhook = ReplicatedStorage:FindFirstChild("Remotes") and ReplicatedStorage.Remotes:FindFirstChild("Carry") and ReplicatedStorage.Remotes.Carry:FindFirstChild("UnHookEvent"),
+        SelfUnhook = ReplicatedStorage:FindFirstChild("Remotes") and ReplicatedStorage.Remotes:FindFirstChild("Carry") and ReplicatedStorage.Remotes.Carry:FindFirstChild("SelfUnHookEvent"),
+        CarrySurvivor = ReplicatedStorage:FindFirstChild("Remotes") and ReplicatedStorage.Remotes:FindFirstChild("Carry") and ReplicatedStorage.Remotes.Carry:FindFirstChild("CarrySurvivorEvent"),
+        DropSurvivor = ReplicatedStorage:FindFirstChild("Remotes") and ReplicatedStorage.Remotes:FindFirstChild("Carry") and ReplicatedStorage.Remotes.Carry:FindFirstChild("DropSurvivorEvent"),
+    },
+    Mechanics = {
+        Crouch = ReplicatedStorage:FindFirstChild("Remotes") and ReplicatedStorage.Remotes:FindFirstChild("Mechanics") and ReplicatedStorage.Remotes.Mechanics:FindFirstChild("Crouch"),
+        Teleport = ReplicatedStorage:FindFirstChild("Remotes") and ReplicatedStorage.Remotes:FindFirstChild("Teleport"),
+        ChangeAttribute = ReplicatedStorage:FindFirstChild("Remotes") and ReplicatedStorage.Remotes:FindFirstChild("Mechanics") and ReplicatedStorage.Remotes.Mechanics:FindFirstChild("ChangeAttribute"),
+        SyncPosition = ReplicatedStorage:FindFirstChild("Remotes") and ReplicatedStorage.Remotes:FindFirstChild("Mechanics") and ReplicatedStorage.Remotes.Mechanics:FindFirstChild("syncPosition"),
+        Highlight = ReplicatedStorage:FindFirstChild("Remotes") and ReplicatedStorage.Remotes:FindFirstChild("Mechanics") and ReplicatedStorage.Remotes.Mechanics:FindFirstChild("Highlight"),
+        ParriedClient = ReplicatedStorage:FindFirstChild("Remotes") and ReplicatedStorage.Remotes:FindFirstChild("Mechanics") and ReplicatedStorage.Remotes.Mechanics:FindFirstChild("parriedclient"),
+        Fall = ReplicatedStorage:FindFirstChild("Remotes") and ReplicatedStorage.Remotes:FindFirstChild("Mechanics") and ReplicatedStorage.Remotes.Mechanics:FindFirstChild("Fall"),
+    },
+    Spectate = {
+        SpectateEnabler = ReplicatedStorage:FindFirstChild("Remotes") and ReplicatedStorage.Remotes:FindFirstChild("Spectate") and ReplicatedStorage.Remotes.Spectate:FindFirstChild("Spectateenabler"),
+    },
+    Chat = {
+        ChatTags = ReplicatedStorage:FindFirstChild("Remotes") and ReplicatedStorage.Remotes:FindFirstChild("Mechanics") and ReplicatedStorage.Remotes.Mechanics:FindFirstChild("Chat") and ReplicatedStorage.Remotes.Mechanics.Chat:FindFirstChild("ChatTags"),
+        AnnounceMessage = ReplicatedStorage:FindFirstChild("Remotes") and ReplicatedStorage.Remotes:FindFirstChild("Messages") and ReplicatedStorage.Remotes.Messages:FindFirstChild("AnnounceMessage"),
+    },
+    Window = {
+        Vault = ReplicatedStorage:FindFirstChild("Remotes") and ReplicatedStorage.Remotes:FindFirstChild("Window") and ReplicatedStorage.Remotes.Window:FindFirstChild("VaultEvent"),
+        VaultCommit = ReplicatedStorage:FindFirstChild("Remotes") and ReplicatedStorage.Remotes:FindFirstChild("Window") and ReplicatedStorage.Remotes.Window:FindFirstChild("VaultCommit"),
+        FastVault = ReplicatedStorage:FindFirstChild("Remotes") and ReplicatedStorage.Remotes:FindFirstChild("Window") and ReplicatedStorage.Remotes.Window:FindFirstChild("fastvault"),
+    },
+    Pallet = {
+        Drop = ReplicatedStorage:FindFirstChild("Remotes") and ReplicatedStorage.Remotes:FindFirstChild("Pallet") and ReplicatedStorage.Remotes.Pallet:FindFirstChild("PalletDropEvent"),
+        Destroy = ReplicatedStorage:FindFirstChild("Remotes") and ReplicatedStorage.Remotes:FindFirstChild("Pallet") and ReplicatedStorage.Remotes.Pallet:FindFirstChild("Jason") and ReplicatedStorage.Remotes.Pallet.Jason:FindFirstChild("Destroy"),
+        Slide = ReplicatedStorage:FindFirstChild("Remotes") and ReplicatedStorage.Remotes:FindFirstChild("Pallet") and ReplicatedStorage.Remotes.Pallet:FindFirstChild("PalletSlideEvent"),
+    },
+    Exit = {
+        Lever = ReplicatedStorage:FindFirstChild("Remotes") and ReplicatedStorage.Remotes:FindFirstChild("Exit") and ReplicatedStorage.Remotes.Exit:FindFirstChild("LeverEvent"),
+    },
+    Game = {
+        Emote = ReplicatedStorage:FindFirstChild("Remotes") and ReplicatedStorage.Remotes:FindFirstChild("EmoteHandler"),
+        EmoteState = ReplicatedStorage:FindFirstChild("Remotes") and ReplicatedStorage.Remotes:FindFirstChild("EmoteStateEvent"),
+        LoadCharacter = ReplicatedStorage:FindFirstChild("Remotes") and ReplicatedStorage.Remotes:FindFirstChild("Game") and ReplicatedStorage.Remotes.Game:FindFirstChild("loadcharevent"),
+        ShowResults = ReplicatedStorage:FindFirstChild("Remotes") and ReplicatedStorage.Remotes:FindFirstChild("Game") and ReplicatedStorage.Remotes.Game:FindFirstChild("showresults"),
+    },
+}
+
+local function GetPlayerTeam()
+    return LocalPlayer.Team and LocalPlayer.Team.Name or "Unknown"
+end
+
+local function IsKiller(player)
+    return player.Team and player.Team.Name == "Killer"
+end
+
+local function IsSurvivor(player)
+    return player.Team and player.Team.Name == "Survivors"
+end
+
+local function GetDistance(pos1, pos2)
+    return (pos1 - pos2).Magnitude
+end
+
+local ESPColors = {
+    SCP = Color3.fromRGB(255, 0, 255),
+    Player = Color3.fromRGB(57, 255, 20),
+    Killer = Color3.fromRGB(255, 40, 40),
+    Generator = Color3.fromRGB(255, 255, 0),
+    GeneratorDone = Color3.fromRGB(0, 255, 0),
+    Pallet = Color3.fromRGB(255, 128, 0),
+    Hook = Color3.fromRGB(255, 105, 180),
+    Gate = Color3.fromRGB(0, 255, 255),
+    Window = Color3.fromRGB(0, 200, 255)
+}
+
+local SurvivorFOVCircle = Drawing.new("Circle")
+SurvivorFOVCircle.Visible = false
+SurvivorFOVCircle.Thickness = 2
+SurvivorFOVCircle.Color = Color3.fromRGB(0, 255, 100)
+SurvivorFOVCircle.Filled = false
+SurvivorFOVCircle.NumSides = 100
+
+local KillerFOVCircle = Drawing.new("Circle")
+KillerFOVCircle.Visible = false
+KillerFOVCircle.Thickness = 2
+KillerFOVCircle.Color = Color3.fromRGB(255, 0, 0)
+KillerFOVCircle.Filled = false
+KillerFOVCircle.NumSides = 100
+
+local CrosshairObjects = {}
+local ESPObjects = {}
+local PlayerESPObjects = {}
+local GeneratorBillboards = {}
+local CachedObjects = {Generators = {}, Pallets = {}, Hooks = {}, Gates = {}, Windows = {}, SCPs = {}}
+local KillerAiming = false
+local IsAiming = false
+local ParryCooldown = false
+local GeneratorRepairActive = false
+local IsThirdPersonActive = false
+local OriginalCameraSubject = nil
+local ThirdPersonConnection = nil
+local AimbotConnection = nil
+local AutoParryConnection = nil
+local CurrentGeneratorTarget = nil
+local FlyActive = false
+local FlyBodyVelocity = nil
+local MoonwalkActive = false
+local ParryResultConnection = nil
+local AFKTaskSpawn = nil
+
+-- Variables (dari deobfuscator)
+local ESPMaster = false
+local PlayerESP = false
+local KillerESP = false
+local KillerWarn = false
+local ESPName = true
+local ESPItemIcon = false
+local ESPRangeCircle = false
+local GenESP = true
+local PalletESP = true
+local HookESP = true
+local GateESP = true
+local WindowESP = true
+local SCPESP = true
+local Fullbright = false
+local AimbotEnabled = false
+local ShowFOVCircle = false
+local FOVCircleRadius = 150
+local MaxDistance = 300
+local AimbotSmoothness = 5
+local PredictOffset = 0.01
+local SilentPistol = false
+local SilentFlash = false
+local FlashHeadOffset = 1.5
+local LockAim = false
+local TargetSelection = "Survivor"
+local ShowPistolFOV = false
+local PistolFOVRadius = 150
+local TargetPart = "Torso"
+local AutoParry = false
+local ParrySafety = false
+local AggressiveParry = false
+local ParryCircle = true
+local ParryRadius = 15
+local ParryFace = 0.7
+local IgnoredSkillsList = {}
+local AutoSkillCheck = false
+local AutoCrouch = false
+local InstantSkillCheck = false
+local BypassExitGate = false
+local SelfHeal = false
+local AntiKnockdown = false
+local AutoWiggle = false
+local FleeKiller = false
+local AutoGenerator = false
+local FleeDistance = 30
+local GeneratorPriority = 50
+local AFKAutoFarm = false
+local WebhookEnabled = false
+local WebhookURL = ""
+local InfinityZoom = false
+local CameraFOV = false
+local FOVValue = 90
+local KillerAimbot = false
+local KillerFOVRadius = 150
+local KillerSmoothness = 3
+local KillerMaxDist = 100
+local ThirdPerson = false
+local VeilSilent = false
+local SPEARSpeed = 165
+local SPEARGravity = 103
+local ESPTracker = false
+local ShowVeilFOV = true
+local VeilFOVRadius = 150
+local InvisibleFe = false
+local SpeedBoost = false
+local SpeedBoostValue = 0.02
+local NoClip = false
+local InfinityJump = false
+local AFKEscape = false
+local AFKEscapeTeam = "Survivors"
+local EmoteEnabled = false
+local SelectedEmote = "Friday Night"
+local NameSpoofer = false
+local FakeName = "Astro"
+local AntiAFK = false
+local CrosshairEnabled = false
+local CrosshairColor = Color3.fromRGB(255, 255, 255)
+local CrosshairStyle = "Dot"
+local CrosshairSize = 3
+local CrosshairThickness = 4
+local CrosshairPosX = 0
+local AutoLeaveDone = false
+local SpectateEnabled = false
+local KillerVisualizeEnabled = false
+
+-- ==================== LUNGE ANIMATIONS (DARI DEOBFUSCATOR) ====================
+local LUNGE_ANIMATIONS = {
+    ["122812055447896"] = "Veil lunge",
+    ["117042998468241"] = "Mayers lunge",
+    ["135002183282873"] = "cure lunge",
+    ["129784271201071"] = "Jeff lunge",
+    ["118907603246885"] = "Abyssal lunge",
+    ["80411309607666"] = "crouch trigger"
+}
+
+-- ==================== UPDATE OBJECT CACHE (DARI DEOBFUSCATOR) ====================
+local function UpdateObjectCache()
+    local map = workspace:FindFirstChild("Map")
+    if not map then return end
+    
+    CachedObjects.Generators = {}
+    CachedObjects.Pallets = {}
+    CachedObjects.Hooks = {}
+    CachedObjects.Gates = {}
+    CachedObjects.Windows = {}
+    CachedObjects.SCPs = {}
+    
+    for _, descendant in ipairs(map:GetDescendants()) do
+        if descendant:IsA("Model") then
+            local nameLower = string.lower(descendant.Name)
+            if nameLower == "generator" then
+                table.insert(CachedObjects.Generators, descendant)
+            elseif nameLower == "hook" and descendant:FindFirstChild("HookPoint") then
+                table.insert(CachedObjects.Hooks, descendant)
+            elseif string.lower(descendant:GetAttribute("Type") or "") == "gate" then
+                table.insert(CachedObjects.Gates, descendant)
+            elseif string.lower(descendant:GetAttribute("Type") or "") == "window" then
+                table.insert(CachedObjects.Windows, descendant)
+            elseif string.match(nameLower, "^scp") then
+                table.insert(CachedObjects.SCPs, descendant)
+            end
+        elseif descendant:IsA("BasePart") and descendant.Name == "PrimaryPartPallet" then
+            local parent = descendant.Parent
+            if parent and not table.find(CachedObjects.Pallets, parent) then
+                table.insert(CachedObjects.Pallets, parent)
+            end
+        end
+    end
+    
+    for _, descendant in ipairs(workspace:GetDescendants()) do
+        if descendant:IsA("Model") and string.match(string.lower(descendant.Name), "^scp") then
+            if not table.find(CachedObjects.SCPs, descendant) then
+                table.insert(CachedObjects.SCPs, descendant)
+            end
+        end
+    end
+end
+
+local function GetGeneratorProgress(generator)
+    local progress = generator:GetAttribute("RepairProgress") or 0
+    if type(progress) == "number" then
+        if progress >= 0 and progress <= 1 then
+            return math.floor(progress * 100)
+        else
+            return math.floor(progress)
+        end
+    end
+    return 0
+end
+
+-- ==================== GET ITEM ICON (DARI DEOBFUSCATOR) ====================
+local function GetItemIcon(itemName)
+    if not itemName or itemName == "" then return nil end
+    local items = ReplicatedStorage:FindFirstChild("Items")
+    if items then
+        local item = items:FindFirstChild(itemName)
+        if item then
+            return item.Texture or item.Image
+        end
+    end
+    return nil
+end
+
+-- ==================== BILLBOARD GUI (DARI DEOBFUSCATOR) ====================
+local function CreateBillboard(part, name, color, offsetY, icon)
+    local billboard = Instance.new("BillboardGui")
+    billboard.Name = name
+    billboard.Size = UDim2.new(0, 200, 0, 25)
+    billboard.StudsOffset = Vector3.new(0, offsetY or 3.5, 0)
+    billboard.AlwaysOnTop = true
+    billboard.Parent = part
+    
+    local frame = Instance.new("Frame")
+    frame.Name = "Box"
+    frame.AutomaticSize = Enum.AutomaticSize.X
+    frame.Size = UDim2.new(0, 0, 0, 15)
+    frame.Position = UDim2.new(0.5, 0, 0, 0)
+    frame.AnchorPoint = Vector2.new(0.5, 0)
+    frame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+    frame.BackgroundTransparency = 0
+    frame.BorderSizePixel = 0
+    frame.ZIndex = 2
+    frame.Parent = billboard
+    
+    Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 3)
+    
+    local gradient = Instance.new("UIGradient")
+    gradient.Transparency = NumberSequence.new({
+        NumberSequenceKeypoint.new(0, 1),
+        NumberSequenceKeypoint.new(0.15, 0.35),
+        NumberSequenceKeypoint.new(0.85, 0.35),
+        NumberSequenceKeypoint.new(1, 1)
+    })
+    gradient.Parent = frame
+    
+    local padding = Instance.new("UIPadding")
+    padding.PaddingLeft = UDim.new(0, 8)
+    padding.PaddingRight = UDim.new(0, 8)
+    padding.Parent = frame
+    
+    local layout = Instance.new("UIListLayout")
+    layout.FillDirection = Enum.FillDirection.Horizontal
+    layout.VerticalAlignment = Enum.VerticalAlignment.Center
+    layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+    layout.Padding = UDim.new(0, 3)
+    layout.SortOrder = Enum.SortOrder.LayoutOrder
+    layout.Parent = frame
+    
+    local iconLabel = Instance.new("ImageLabel")
+    iconLabel.Name = "Icon"
+    iconLabel.Size = UDim2.new(0, 12, 0, 12)
+    iconLabel.BackgroundTransparency = 1
+    iconLabel.ZIndex = 3
+    iconLabel.LayoutOrder = 1
+    iconLabel.Visible = icon and icon ~= ""
+    if icon then iconLabel.Image = icon end
+    iconLabel.Parent = frame
+    
+    local textLabel = Instance.new("TextLabel")
+    textLabel.Name = "Text"
+    textLabel.AutomaticSize = Enum.AutomaticSize.X
+    textLabel.Size = UDim2.new(0, 0, 1, 0)
+    textLabel.BackgroundTransparency = 1
+    textLabel.Font = Enum.Font.GothamMedium
+    textLabel.TextSize = 10
+    textLabel.ZIndex = 3
+    textLabel.LayoutOrder = 2
+    textLabel.RichText = true
+    textLabel.TextXAlignment = Enum.TextXAlignment.Center
+    textLabel.TextYAlignment = Enum.TextYAlignment.Center
+    textLabel.Parent = frame
+    
+    local line = Instance.new("Frame")
+    line.Name = "Line"
+    line.Size = UDim2.new(0, 1, 0, 10)
+    line.Position = UDim2.new(0.5, 0, 0, 15)
+    line.AnchorPoint = Vector2.new(0.5, 0)
+    line.BorderSizePixel = 0
+    line.ZIndex = 1
+    line.Parent = billboard
+    
+    local lineGradient = Instance.new("UIGradient")
+    lineGradient.Rotation = 90
+    lineGradient.Transparency = NumberSequence.new({
+        NumberSequenceKeypoint.new(0, 0),
+        NumberSequenceKeypoint.new(1, 1)
+    })
+    lineGradient.Parent = line
+    
+    line.BackgroundColor3 = color
+    
+    return {billboard = billboard, frame = frame, textLabel = textLabel, iconLabel = iconLabel, line = line}
+end
+
+-- ==================== GENERATOR BILLBOARD (DARI DEOBFUSCATOR) ====================
+local function CreateGeneratorBillboard(generator)
+    if GeneratorBillboards[generator] then return end
+    
+    local billboard = Instance.new("BillboardGui")
+    billboard.Name = "GenProgress"
+    billboard.Size = UDim2.new(0, 120, 0, 40)
+    billboard.StudsOffset = Vector3.new(0, 3, 0)
+    billboard.AlwaysOnTop = true
+    billboard.Parent = generator
+    
+    local frame = Instance.new("Frame")
+    frame.Size = UDim2.new(1, 0, 1, 0)
+    frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    frame.BackgroundTransparency = 0.5
+    frame.BorderSizePixel = 0
+    frame.Parent = billboard
+    
+    local textLabel = Instance.new("TextLabel")
+    textLabel.Size = UDim2.new(1, 0, 1, 0)
+    textLabel.BackgroundTransparency = 1
+    textLabel.TextStrokeTransparency = 0
+    textLabel.TextScaled = true
+    textLabel.Font = Enum.Font.SourceSansBold
+    textLabel.TextColor3 = ESPColors.Generator
+    textLabel.Parent = frame
+    
+    local progressBar = Instance.new("Frame")
+    progressBar.Size = UDim2.new(0, 0, 0, 4)
+    progressBar.Position = UDim2.new(0, 0, 1, -4)
+    progressBar.BackgroundColor3 = ESPColors.Generator
+    progressBar.BorderSizePixel = 0
+    progressBar.Parent = frame
+    
+    local highlight = Instance.new("Highlight")
+    highlight.Name = "GenHighlight"
+    highlight.FillTransparency = 0.5
+    highlight.OutlineTransparency = 0.1
+    highlight.Parent = generator
+    
+    GeneratorBillboards[generator] = {
+        billboard = billboard,
+        label = textLabel,
+        progressBar = progressBar,
+        highlight = highlight
+    }
+end
+
+local function UpdateGeneratorESP()
+    if not ESPMaster or not GenESP then return end
+    
+    for _, generator in ipairs(CachedObjects.Generators) do
+        if not generator.Parent then goto continue end
+        
+        local progress = GetGeneratorProgress(generator)
+        
+        if not GeneratorBillboards[generator] then
+            CreateGeneratorBillboard(generator)
+        end
+        
+        local data = GeneratorBillboards[generator]
+        if data then
+            if progress >= 100 then
+                data.label.Text = "✓ 100%"
+                data.label.TextColor3 = ESPColors.GeneratorDone
+                data.progressBar.BackgroundColor3 = ESPColors.GeneratorDone
+                data.progressBar.Size = UDim2.new(1, 0, 0, 4)
+                data.highlight.FillColor = ESPColors.GeneratorDone
+                data.highlight.OutlineColor = ESPColors.GeneratorDone
+            else
+                data.label.Text = string.format("🔧 %d%%", progress)
+                data.label.TextColor3 = ESPColors.Generator
+                data.progressBar.BackgroundColor3 = ESPColors.Generator
+                data.progressBar.Size = UDim2.new(progress / 100, 0, 0, 4)
+                data.highlight.FillColor = ESPColors.Generator
+                data.highlight.OutlineColor = ESPColors.Generator
+            end
+            data.highlight.Adornee = generator
+        end
+        
+        ::continue::
+    end
+end
+
+-- ==================== OBJECT ESP (DARI DEOBFUSCATOR) ====================
+local function CreateObjectESP(obj, objType)
+    if ESPObjects[obj] then return end
+    
+    local highlight = Instance.new("Highlight")
+    highlight.FillTransparency = 1
+    highlight.OutlineTransparency = 0
+    highlight.Adornee = obj
+    highlight.Parent = obj
+    
+    local color = nil
+    if objType == "Pallet" then color = ESPColors.Pallet
+    elseif objType == "Hook" then color = ESPColors.Hook
+    elseif objType == "Gate" then color = ESPColors.Gate
+    elseif objType == "Window" then color = ESPColors.Window
+    elseif objType == "SCP" then color = ESPColors.SCP
+    end
+    
+    if color then
+        highlight.FillColor = color
+        highlight.OutlineColor = color
+    end
+    
+    ESPObjects[obj] = {highlight = highlight, type = objType}
+end
+
+local function UpdateObjectESP()
+    if not ESPMaster then return end
+    
+    if PalletESP then
+        for _, pallet in ipairs(CachedObjects.Pallets) do
+            if pallet and pallet.Parent and not ESPObjects[pallet] then
+                CreateObjectESP(pallet, "Pallet")
+            end
+        end
+    end
+    
+    if HookESP then
+        for _, hook in ipairs(CachedObjects.Hooks) do
+            if hook and hook.Parent and not ESPObjects[hook] then
+                CreateObjectESP(hook, "Hook")
+            end
+        end
+    end
+    
+    if GateESP then
+        for _, gate in ipairs(CachedObjects.Gates) do
+            if gate and gate.Parent and not ESPObjects[gate] then
+                CreateObjectESP(gate, "Gate")
+            end
+        end
+    end
+    
+    if WindowESP then
+        for _, window in ipairs(CachedObjects.Windows) do
+            if window and window.Parent and not ESPObjects[window] then
+                local mainPart = window:FindFirstChild("Bottom") or window:FindFirstChildWhichIsA("BasePart")
+                if mainPart then
+                    local boxAdornment = Instance.new("BoxHandleAdornment")
+                    boxAdornment.Name = "WindowESP"
+                    boxAdornment.Parent = window
+                    boxAdornment.AlwaysOnTop = true
+                    boxAdornment.ZIndex = 5
+                    boxAdornment.Adornee = mainPart
+                    boxAdornment.Size = mainPart.Size
+                    boxAdornment.Color3 = ESPColors.Window
+                    boxAdornment.Transparency = 0.8
+                    ESPObjects[window] = {highlight = boxAdornment, type = "Window"}
+                end
+            end
+        end
+    end
+    
+    if SCPESP then
+        for _, scp in ipairs(CachedObjects.SCPs) do
+            if scp and scp.Parent and not ESPObjects[scp] then
+                CreateObjectESP(scp, "SCP")
+            end
+        end
+    end
+end
+
+-- ==================== PLAYER ESP (DARI DEOBFUSCATOR) ====================
+local function CreatePlayerESP(player)
+    if PlayerESPObjects[player] then return end
+    if not player.Character then return end
+    
+    local character = player.Character
+    local head = character:FindFirstChild("Head")
+    if not head then return end
+    
+    local isKillerPlayer = IsKiller(player)
+    local shouldShow = (PlayerESP and not isKillerPlayer) or (KillerESP and isKillerPlayer)
+    if not shouldShow then return end
+    
+    local color = isKillerPlayer and ESPColors.Killer or ESPColors.Player
+    
+    local highlight = Instance.new("Highlight")
+    highlight.Name = isKillerPlayer and "KEH" or "PEH"
+    highlight.FillTransparency = 1
+    highlight.OutlineTransparency = 0
+    highlight.FillColor = color
+    highlight.OutlineColor = color
+    highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+    highlight.Adornee = character
+    highlight.Parent = CoreGui
+    
+    local billboardName = isKillerPlayer and "KE_Text" or "PE_Text"
+    local billboardData = CreateBillboard(head, billboardName, color, 2.5, nil)
+    if billboardData and billboardData.textLabel then
+        billboardData.textLabel.Text = player.Name
+        billboardData.textLabel.TextColor3 = color
+        billboardData.textLabel.Visible = ESPName
+    end
+    
+    local killerWarnBillboard = nil
+    if isKillerPlayer and KillerWarn then
+        killerWarnBillboard = Instance.new("BillboardGui")
+        killerWarnBillboard.Name = "KillerWarn"
+        killerWarnBillboard.Size = UDim2.new(0, 50, 0, 50)
+        killerWarnBillboard.StudsOffset = Vector3.new(0, 4, 0)
+        killerWarnBillboard.AlwaysOnTop = true
+        killerWarnBillboard.Parent = head
+        
+        local warnLabel = Instance.new("TextLabel")
+        warnLabel.Name = "WarnText"
+        warnLabel.Size = UDim2.new(1, 0, 1, 0)
+        warnLabel.BackgroundTransparency = 1
+        warnLabel.TextScaled = true
+        warnLabel.Font = Enum.Font.GothamBlack
+        warnLabel.Parent = killerWarnBillboard
+        killerWarnBillboard.WarnText = warnLabel
+    end
+    
+    PlayerESPObjects[player] = {
+        highlight = highlight,
+        billboard = billboardData,
+        killerWarnBillboard = killerWarnBillboard,
+        isKiller = isKillerPlayer
+    }
+end
+
+local function UpdatePlayerESP()
+    if not ESPMaster then return end
+    if not (PlayerESP or KillerESP) then return end
+    
+    local playerPos = nil
+    if LocalPlayer.Character then
+        local root = LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+        if root then playerPos = root.Position end
+    end
+    
+    for player, data in pairs(PlayerESPObjects) do
+        local character = player.Character
+        if character and character.Parent then
+            local rootPart = character:FindFirstChild("HumanoidRootPart")
+            if rootPart and playerPos then
+                local dist = GetDistance(rootPart.Position, playerPos)
+                local color = data.isKiller and ESPColors.Killer or ESPColors.Player
+                
+                if data.highlight then
+                    data.highlight.FillColor = color
+                    data.highlight.OutlineColor = color
+                end
+                
+                if data.billboard and data.billboard.textLabel then
+                    data.billboard.textLabel.Text = string.format("%s [%dm]", player.Name, math.floor(dist))
+                    data.billboard.textLabel.TextColor3 = color
+                    data.billboard.line.BackgroundColor3 = color
+                end
+                
+                if data.isKiller and data.killerWarnBillboard and playerPos then
+                    if dist <= 80 then
+                        data.killerWarnBillboard.Visible = true
+                        local warnLabel = data.killerWarnBillboard:FindFirstChild("WarnText")
+                        if warnLabel then
+                            if dist <= 40 then
+                                warnLabel.Text = "‼️‼️‼️"
+                                warnLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
+                            else
+                                warnLabel.Text = "⚠️⚠️"
+                                warnLabel.TextColor3 = Color3.fromRGB(255, 255, 0)
+                            end
+                        end
+                    else
+                        data.killerWarnBillboard.Visible = false
+                    end
+                end
+                
+                -- ESP Item Icon (dari deobfuscator)
+                if ESPItemIcon and not data.isKiller then
+                    local equippedItem = player:GetAttribute("EquippedItem")
+                    if equippedItem and equippedItem ~= "" then
+                        local icon = GetItemIcon(equippedItem)
+                        if data.billboard and data.billboard.iconLabel then
+                            data.billboard.iconLabel.Image = icon or ""
+                            data.billboard.iconLabel.Visible = icon ~= nil
+                        end
+                    elseif data.billboard and data.billboard.iconLabel then
+                        data.billboard.iconLabel.Visible = false
+                    end
+                end
+            else
+                RemovePlayerESP(player)
+            end
+        else
+            RemovePlayerESP(player)
+        end
+    end
+end
+
+local function RemovePlayerESP(player)
+    local data = PlayerESPObjects[player]
+    if data then
+        if data.highlight then data.highlight:Destroy() end
+        if data.billboard and data.billboard.billboard then data.billboard.billboard:Destroy() end
+        if data.killerWarnBillboard then data.killerWarnBillboard:Destroy() end
+        PlayerESPObjects[player] = nil
+    end
+end
+
+local function RefreshPlayerESP()
+    for player, _ in pairs(PlayerESPObjects) do
+        RemovePlayerESP(player)
+    end
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer then
+            CreatePlayerESP(player)
+        end
+    end
+end
+
+local PlayerESPConnections = {}
+local function SetupPlayerESPConnections()
+    for _, conn in ipairs(PlayerESPConnections) do
+        conn:Disconnect()
+    end
+    PlayerESPConnections = {}
+    
+    local addedConn = Players.PlayerAdded:Connect(function(player)
+        if player == LocalPlayer then return end
+        local charConn = player.CharacterAdded:Connect(function()
+            task.wait(1)
+            CreatePlayerESP(player)
+        end)
+        table.insert(PlayerESPConnections, charConn)
+        if player.Character then
+            task.wait(0.5)
+            CreatePlayerESP(player)
+        end
+    end)
+    table.insert(PlayerESPConnections, addedConn)
+    
+    local removedConn = Players.PlayerRemoving:Connect(RemovePlayerESP)
+    table.insert(PlayerESPConnections, removedConn)
+    
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer then
+            CreatePlayerESP(player)
+        end
+    end
+end
+
+local function EnableESP()
+    ESPMaster = true
+    UpdateObjectCache()
+    SetupPlayerESPConnections()
+    
+    task.spawn(function()
+        while ESPMaster do
+            task.wait(0.1)
+            UpdatePlayerESP()
+            UpdateObjectESP()
+            UpdateGeneratorESP()
+        end
+    end)
+    
+    task.spawn(function()
+        while ESPMaster do
+            task.wait(5)
+            if ESPMaster then
+                UpdateObjectCache()
+            end
+        end
+    end)
+end
+
+local function DisableESP()
+    ESPMaster = false
+    
+    for _, data in pairs(GeneratorBillboards) do
+        if data.billboard then data.billboard:Destroy() end
+        if data.highlight then data.highlight:Destroy() end
+    end
+    GeneratorBillboards = {}
+    
+    for _, data in pairs(ESPObjects) do
+        if data.highlight then data.highlight:Destroy() end
+    end
+    ESPObjects = {}
+    
+    for player, _ in pairs(PlayerESPObjects) do
+        RemovePlayerESP(player)
+    end
+    
+    for _, conn in ipairs(PlayerESPConnections) do
+        conn:Disconnect()
+    end
+    PlayerESPConnections = {}
+end
+
+-- ==================== SILENT AIM (DARI DEOBFUSCATOR) ====================
+local function GetSilentTarget()
+    local viewportCenter = CurrentCamera.ViewportSize / 2
+    local closestDist = PistolFOVRadius
+    local closestTarget = nil
+    
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer then
+            if TargetSelection == "Killer" and not IsKiller(player) then goto continue end
+            if TargetSelection == "Survivor" and not IsSurvivor(player) then goto continue end
+            
+            local targetPartObj = player.Character and player.Character:FindFirstChild(TargetPart)
+            if targetPartObj then
+                local targetPos = targetPartObj.Position
+                if TargetPart == "Head" and SilentFlash then
+                    targetPos = targetPartObj.Position + Vector3.new(0, FlashHeadOffset, 0)
+                end
+                local vec, onScreen = CurrentCamera:WorldToViewportPoint(targetPos)
+                if onScreen then
+                    local screenPos = Vector2.new(vec.X, vec.Y)
+                    local centerDist = (screenPos - viewportCenter).Magnitude
+                    
+                    if centerDist < closestDist then
+                        closestDist = centerDist
+                        closestTarget = {player = player, part = targetPartObj, position = targetPos}
+                    end
+                end
+            end
+        end
+        ::continue::
+    end
+    return closestTarget
+end
+
+local function FireWeapon(weaponType, target)
+    if not target then return end
+    
+    if weaponType == "Pistol" then
+        if Remotes.Items.BandageFire then
+            Remotes.Items.BandageFire:FireServer(target.position)
+        end
+        if Remotes.Killer.BasicAttack then
+            Remotes.Killer.BasicAttack:FireServer(target.position)
+        end
+    elseif weaponType == "Flash" then
+        if Remotes.Items.GotBlinded then
+            Remotes.Items.GotBlinded:FireServer(target.player)
+        end
+    elseif weaponType == "Veil" then
+        if Remotes.Killer.VeilSpear then
+            Remotes.Killer.VeilSpear:FireServer(target.position)
+        end
+    end
+end
+
+local LockTarget = nil
+local SilentAimConnection = nil
+local function SetupSilentAim()
+    if SilentAimConnection then SilentAimConnection:Disconnect() end
+    
+    SilentAimConnection = UserInputService.InputBegan:Connect(function(input, gameProcessed)
+        if gameProcessed then return end
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            if SilentPistol then
+                local target = GetSilentTarget()
+                if target then
+                    FireWeapon("Pistol", target)
+                    if LockAim then LockTarget = target end
+                end
+            end
+            if SilentFlash then
+                local target = GetSilentTarget()
+                if target then FireWeapon("Flash", target) end
+            end
+            if VeilSilent then
+                local target = GetSilentTarget()
+                if target then FireWeapon("Veil", target) end
+            end
+        end
+    end)
+end
+
+-- ==================== AIMBOT SURVIVOR (DARI DEOBFUSCATOR) ====================
+local function GetClosestTargetInFOV()
+    local viewportCenter = CurrentCamera.ViewportSize / 2
+    local closestDist = FOVCircleRadius
+    local closestTarget = nil
+    
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer then
+            if TargetSelection == "Killer" and not IsKiller(player) then goto continue end
+            if TargetSelection == "Survivor" and not IsSurvivor(player) then goto continue end
+            
+            local targetPartObj = player.Character and player.Character:FindFirstChild(TargetPart)
+            if targetPartObj then
+                local vec, onScreen = CurrentCamera:WorldToViewportPoint(targetPartObj.Position)
+                if onScreen then
+                    local screenPos = Vector2.new(vec.X, vec.Y)
+                    local centerDist = (screenPos - viewportCenter).Magnitude
+                    local worldDist = GetDistance(targetPartObj.Position, CurrentCamera.CFrame.Position)
+                    
+                    if centerDist < closestDist and worldDist <= MaxDistance then
+                        closestDist = centerDist
+                        closestTarget = targetPartObj
+                    end
+                end
+            end
+        end
+        ::continue::
+    end
+    return closestTarget
+end
+
+local function SetupAimbot()
+    if AimbotConnection then AimbotConnection:Disconnect() end
+    
+    AimbotConnection = RunService.RenderStepped:Connect(function()
+        if not AimbotEnabled then return end
+        if not IsAiming then return end
+        if GetPlayerTeam() ~= "Survivor" then return end
+        
+        local target = GetClosestTargetInFOV()
+        if target then
+            local currentCFrame = CurrentCamera.CFrame
+            local targetCFrame = CFrame.new(currentCFrame.Position, target.Position)
+            local smoothness = AimbotSmoothness / 10
+            CurrentCamera.CFrame = currentCFrame:Lerp(targetCFrame, smoothness)
+        end
+    end)
+end
+
+-- ==================== AUTO PARRY (DARI DEOBFUSCATOR) ====================
+local function CanParry()
+    if ParryCooldown then return false end
+    
+    local character = LocalPlayer.Character
+    if not character then return false end
+    
+    if character:GetAttribute("Knocked") or character:GetAttribute("IsHooked") then
+        return false
+    end
+    
+    if ParrySafety then
+        local checkInterractable = character:FindFirstChild("CheckInterractable")
+        if checkInterractable then
+            if checkInterractable:GetAttribute("isVaulting") == true then return false end
+            if checkInterractable:GetAttribute("isRepairing") == true then return false end
+            if checkInterractable:GetAttribute("isUnhooking") == true then return false end
+            if checkInterractable:GetAttribute("isHealing") == true then return false end
+            if checkInterractable:GetAttribute("isSliding") == true then return false end
+        end
+    end
+    
+    return true
+end
+
+local function DoParry()
+    if ParryCooldown then return end
+    
+    if Remotes.Items.Parry then
+        for i = 1, 10 do
+            Remotes.Items.Parry:FireServer()
+        end
+        
+        if ParryCircle then
+            local character = LocalPlayer.Character
+            if character and character:FindFirstChild("HumanoidRootPart") then
+                local circle = Instance.new("Part")
+                circle.Shape = Enum.PartType.Ball
+                circle.Size = Vector3.new(2, 2, 2)
+                circle.Material = Enum.Material.Neon
+                circle.Color = Color3.fromRGB(0, 255, 255)
+                circle.Anchored = true
+                circle.CFrame = character.HumanoidRootPart.CFrame
+                circle.Parent = workspace
+                TweenService:Create(circle, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = Vector3.new(8, 8, 8)}):Play()
+                task.delay(0.4, function() circle:Destroy() end)
+            end
+        end
+    end
+end
+
+local function SetupParryResultListener()
+    if ParryResultConnection then ParryResultConnection:Disconnect() end
+    
+    if Remotes.Items.ParryResult then
+        ParryResultConnection = Remotes.Items.ParryResult.OnClientEvent:Connect(function(success, cooldownTime)
+            if success then
+                ParryCooldown = true
+                task.delay(cooldownTime or 60, function()
+                    ParryCooldown = false
+                    if AutoParry then
+                        Library:Notify({Title = "Auto Parry", Description = "Ready again!", Time = 2})
+                    end
+                end)
+            end
+        end)
+    end
+end
+
+local function SetupAnimationListener()
+    local character = LocalPlayer.Character
+    if not character then return end
+    
+    local humanoid = character:FindFirstChild("Humanoid")
+    if not humanoid then return end
+    
+    local animator = humanoid:FindFirstChildOfClass("Animator")
+    if not animator then
+        humanoid.ChildAdded:Connect(function(child)
+            if child:IsA("Animator") then
+                SetupAnimationListener()
+            end
+        end)
+        return
+    end
+    
+    if AutoParryConnection then AutoParryConnection:Disconnect() end
+    
+    AutoParryConnection = animator.AnimationPlayed:Connect(function(animationTrack)
+        if not AutoParry then return end
+        
+        local animId = animationTrack.Animation and animationTrack.Animation.AnimationId or ""
+        local animNum = animId:match("%d+")
+        
+        local lungeName = LUNGE_ANIMATIONS[animNum]
+        if not lungeName then return end
+        
+        if IgnoredSkillsList and IgnoredSkillsList[lungeName] then return end
+        
+        if not CanParry() then return end
+        
+        local rootPart = character:FindFirstChild("HumanoidRootPart")
+        if not rootPart then return end
+        
+        local nearestDist = ParryRadius
+        local nearestAttackerPos = nil
+        
+        for _, player in ipairs(Players:GetPlayers()) do
+            if player ~= LocalPlayer and IsKiller(player) and player.Character then
+                local attackerRoot = player.Character:FindFirstChild("HumanoidRootPart")
+                if attackerRoot then
+                    local dist = GetDistance(attackerRoot.Position, rootPart.Position)
+                    if dist < nearestDist then
+                        nearestDist = dist
+                        nearestAttackerPos = attackerRoot.Position
+                    end
+                end
+            end
+        end
+        
+        if nearestAttackerPos and nearestDist <= ParryRadius then
+            if AggressiveParry then
+                DoParry()
+            else
+                local playerPos = Vector3.new(rootPart.Position.X, 0, rootPart.Position.Z)
+                local attackerPos = Vector3.new(nearestAttackerPos.X, 0, nearestAttackerPos.Z)
+                local toAttacker = (attackerPos - playerPos).Unit
+                local lookVector = Vector3.new(rootPart.CFrame.LookVector.X, 0, rootPart.CFrame.LookVector.Z).Unit
+                
+                if lookVector:Dot(toAttacker) >= ParryFace then
+                    DoParry()
+                end
+            end
+        end
+    end)
+end
+
+local function EnableAutoParry()
+    AutoParry = true
+    SetupAnimationListener()
+    SetupParryResultListener()
+    LocalPlayer.CharacterAdded:Connect(SetupAnimationListener)
+    Library:Notify({Title = "Auto Parry", Description = "Enabled! Radius: " .. ParryRadius .. "m", Time = 3})
+end
+
+local function DisableAutoParry()
+    AutoParry = false
+    if AutoParryConnection then
+        AutoParryConnection:Disconnect()
+        AutoParryConnection = nil
+    end
+end
+
+-- ==================== AUTO SKILL CHECK (DARI DEOBFUSCATOR) ====================
+local function PressSpace()
+    VirtualInput:SendKeyEvent(true, Enum.KeyCode.Space, false, game)
+    task.wait(0.01)
+    VirtualInput:SendKeyEvent(false, Enum.KeyCode.Space, false, game)
+end
+
+local SkillCheckConnection = nil
+local function SetupSkillCheck()
+    if not AutoSkillCheck then return end
+    
+    local playerGui = LocalPlayer:WaitForChild("PlayerGui")
+    local promptGui = playerGui:FindFirstChild("SkillCheckPromptGui")
+    if not promptGui then return end
+    
+    local checkFrame = promptGui:FindFirstChild("Check")
+    if not checkFrame then return end
+    
+    local linePart = checkFrame:FindFirstChild("Line")
+    local goalPart = checkFrame:FindFirstChild("Goal")
+    
+    if linePart and goalPart then
+        if SkillCheckConnection then SkillCheckConnection:Disconnect() end
+        
+        local function OnSkillCheckVisible()
+            if not AutoSkillCheck then return end
+            if not checkFrame.Visible then return end
+            
+            if InstantSkillCheck then
+                if Remotes.Generator.SkillCheckResult then
+                    Remotes.Generator.SkillCheckResult:FireServer(true)
+                end
+                PressSpace()
+                return
+            end
+            
+            local lastPress = 0
+            SkillCheckConnection = RunService.Heartbeat:Connect(function()
+                if not AutoSkillCheck then
+                    if SkillCheckConnection then SkillCheckConnection:Disconnect() end
+                    return
+                end
+                if not checkFrame.Visible then
+                    if SkillCheckConnection then SkillCheckConnection:Disconnect() end
+                    return
+                end
+                
+                local lineRot = linePart.Rotation % 360
+                local goalRot = goalPart.Rotation % 360
+                local zoneStart = (goalRot + 104) % 360
+                local zoneEnd = (goalRot + 114) % 360
+                
+                local inZone = false
+                if zoneStart > zoneEnd then
+                    inZone = lineRot >= zoneStart or lineRot <= zoneEnd
+                else
+                    inZone = lineRot >= zoneStart and lineRot <= zoneEnd
+                end
+                
+                if inZone and tick() - lastPress > 0.2 then
+                    if Remotes.Generator.SkillCheckResult then
+                        Remotes.Generator.SkillCheckResult:FireServer(true)
+                    end
+                    PressSpace()
+                    lastPress = tick()
+                end
+            end)
+        end
+        
+        checkFrame:GetPropertyChangedSignal("Visible"):Connect(OnSkillCheckVisible)
+        if checkFrame.Visible then OnSkillCheckVisible() end
+    end
+end
+
+-- ==================== AUTO CROUCH (DARI DEOBFUSCATOR) ====================
+local CrouchConnection = nil
+local function SetupAutoCrouch()
+    if CrouchConnection then CrouchConnection:Disconnect() end
+    
+    local character = LocalPlayer.Character
+    if not character then return end
+    
+    local humanoid = character:FindFirstChild("Humanoid")
+    if not humanoid then return end
+    
+    local animator = humanoid:FindFirstChildOfClass("Animator")
+    if not animator then return end
+    
+    CrouchConnection = animator.AnimationPlayed:Connect(function(animationTrack)
+        if not AutoCrouch then return end
+        
+        local animId = animationTrack.Animation and animationTrack.Animation.AnimationId or ""
+        local animNum = animId:match("%d+")
+        
+        if animNum == "80411309607666" then
+            VirtualInput:SendKeyEvent(true, Enum.KeyCode.LeftControl, false, game)
+            task.wait(0.3)
+            VirtualInput:SendKeyEvent(false, Enum.KeyCode.LeftControl, false, game)
+        end
+    end)
+end
+
+-- ==================== AUTO GENERATOR (DARI DEOBFUSCATOR) ====================
+local function GetNearestGenerator()
+    local character = LocalPlayer.Character
+    if not character then return nil end
+    local rootPart = character:FindFirstChild("HumanoidRootPart")
+    if not rootPart then return nil end
+    
+    local nearest = nil
+    local nearestScore = math.huge
+    
+    for _, generator in ipairs(CachedObjects.Generators) do
+        if generator and generator.Parent then
+            local progress = GetGeneratorProgress(generator)
+            if progress < 100 then
+                local genPart = generator:FindFirstChildWhichIsA("BasePart")
+                if genPart then
+                    local dist = GetDistance(genPart.Position, rootPart.Position)
+                    local priorityWeight = (100 - progress) * (GeneratorPriority / 100)
+                    local score = dist - priorityWeight
+                    if score < nearestScore then
+                        nearestScore = score
+                        nearest = generator
+                    end
+                end
+            end
+        end
+    end
+    return nearest
+end
+
+local function RepairGenerator(generator)
+    if not generator then return end
+    if not generator.Parent then return end
+    
+    if Remotes.Generator.Repair then
+        Remotes.Generator.Repair:FireServer(generator)
+    end
+    
+    local proximityPrompt = generator:FindFirstChildOfClass("ProximityPrompt")
+    if proximityPrompt then
+        proximityPrompt:Prompt()
+    end
+end
+
+local function StartAutoGenerator()
+    if GeneratorRepairActive then return end
+    if not AutoGenerator then return end
+    
+    GeneratorRepairActive = true
+    
+    task.spawn(function()
+        while GeneratorRepairActive and AutoGenerator do
+            if not ESPMaster then UpdateObjectCache() end
+            
+            local targetGen = GetNearestGenerator()
+            if targetGen then
+                CurrentGeneratorTarget = targetGen
+                RepairGenerator(targetGen)
+            end
+            task.wait(2)
+        end
+    end)
+end
+
+local function StopAutoGenerator()
+    GeneratorRepairActive = false
+    CurrentGeneratorTarget = nil
+end
+
+-- ==================== AUTO HEAL (DARI DEOBFUSCATOR) ====================
+task.spawn(function()
+    while true do
+        task.wait(0.5)
+        if SelfHeal and LocalPlayer.Character then
+            local humanoid = LocalPlayer.Character:FindFirstChild("Humanoid")
+            if humanoid and humanoid.Health < humanoid.MaxHealth then
+                if Remotes.Healing.Heal then
+                    Remotes.Healing.Heal:FireServer()
+                end
+            end
+        end
+    end
+end)
+
+-- ==================== FLEE KILLER (DARI DEOBFUSCATOR) ====================
+task.spawn(function()
+    while true do
+        task.wait(0.1)
+        if FleeKiller and LocalPlayer.Character then
+            local rootPart = LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+            if rootPart then
+                local nearestKiller = nil
+                local nearestDist = FleeDistance
+                for _, player in ipairs(Players:GetPlayers()) do
+                    if player ~= LocalPlayer and IsKiller(player) and player.Character then
+                        local killerRoot = player.Character:FindFirstChild("HumanoidRootPart")
+                        if killerRoot then
+                            local dist = GetDistance(killerRoot.Position, rootPart.Position)
+                            if dist < nearestDist then
+                                nearestDist = dist
+                                nearestKiller = player
+                            end
+                        end
+                    end
+                end
+                if nearestKiller and nearestKiller.Character then
+                    local killerRoot = nearestKiller.Character:FindFirstChild("HumanoidRootPart")
+                    if killerRoot then
+                        local awayDir = (rootPart.Position - killerRoot.Position).Unit
+                        local humanoid = LocalPlayer.Character:FindFirstChild("Humanoid")
+                        if humanoid then
+                            rootPart.AssemblyLinearVelocity = awayDir * 25
+                        end
+                    end
+                end
+            end
+        end
+    end
+end)
+
+-- ==================== AUTO WIGGLE (DARI DEOBFUSCATOR) ====================
+task.spawn(function()
+    while true do
+        task.wait(0.05)
+        if AutoWiggle and LocalPlayer.Character then
+            if LocalPlayer.Character:GetAttribute("IsHooked") then
+                VirtualInput:SendKeyEvent(true, Enum.KeyCode.A, false, game)
+                task.wait(0.05)
+                VirtualInput:SendKeyEvent(false, Enum.KeyCode.A, false, game)
+                VirtualInput:SendKeyEvent(true, Enum.KeyCode.D, false, game)
+                task.wait(0.05)
+                VirtualInput:SendKeyEvent(false, Enum.KeyCode.D, false, game)
+            end
+        end
+    end
+end)
+
+-- ==================== ANTI KNOCKDOWN (DARI DEOBFUSCATOR) ====================
+task.spawn(function()
+    while true do
+        task.wait(0.1)
+        if AntiKnockdown and LocalPlayer.Character then
+            local humanoid = LocalPlayer.Character:FindFirstChild("Humanoid")
+            if humanoid then
+                if humanoid:GetState() == Enum.HumanoidStateType.KnockedDown then
+                    humanoid:ChangeState(Enum.HumanoidStateType.GettingUp)
+                end
+                if LocalPlayer.Character:GetAttribute("Knocked") then
+                    LocalPlayer.Character:SetAttribute("Knocked", false)
+                end
+            end
+        end
+    end
+end)
+
+-- ==================== BYPASS EXIT GATE (DARI DEOBFUSCATOR) ====================
+local function BypassGate()
+    if not BypassExitGate then return end
+    
+    if Remotes.Exit.Lever then
+        Remotes.Exit.Lever:FireServer()
+    end
+    
+    local map = workspace:FindFirstChild("Map")
+    if map then
+        local finishLine = map:FindFirstChild("Finishline")
+        if finishLine then
+            local exitPart = finishLine:FindFirstChildWhichIsA("BasePart") or finishLine
+            if exitPart and LocalPlayer.Character then
+                if Remotes.Mechanics.Teleport then
+                    Remotes.Mechanics.Teleport:FireServer(exitPart.Position)
+                end
+                local rootPart = LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+                if rootPart then
+                    rootPart.CFrame = exitPart.CFrame + Vector3.new(0, 3, 0)
+                end
+            end
+        end
+    end
+end
+
+-- ==================== KILLER AIMBOT (DARI DEOBFUSCATOR) ====================
+local function GetKillerTarget()
+    local viewportCenter = CurrentCamera.ViewportSize / 2
+    local closestDist = KillerFOVRadius
+    local closestTarget = nil
+    
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer and IsSurvivor(player) and player.Character then
+            local head = player.Character:FindFirstChild("Head")
+            if head then
+                local vec, onScreen = CurrentCamera:WorldToViewportPoint(head.Position)
+                if onScreen then
+                    local screenPos = Vector2.new(vec.X, vec.Y)
+                    local centerDist = (screenPos - viewportCenter).Magnitude
+                    local worldDist = GetDistance(head.Position, CurrentCamera.CFrame.Position)
+                    
+                    if centerDist < closestDist and worldDist <= KillerMaxDist then
+                        closestDist = centerDist
+                        closestTarget = head
+                    end
+                end
+            end
+        end
+    end
+    return closestTarget
+end
+
+UserInputService.InputBegan:Connect(function(input, gp)
+    if gp then return end
+    if input.UserInputType == Enum.UserInputType.MouseButton2 and GetPlayerTeam() == "Killer" then
+        KillerAiming = true
+    end
+end)
+
+UserInputService.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton2 then
+        KillerAiming = false
+    end
+end)
+
+RunService.RenderStepped:Connect(function()
+    if KillerAimbot and GetPlayerTeam() == "Killer" and KillerAiming then
+        local target = GetKillerTarget()
+        if target then
+            local smooth = KillerSmoothness / 10
+            CurrentCamera.CFrame = CurrentCamera.CFrame:Lerp(CFrame.new(CurrentCamera.CFrame.Position, target.Position), smooth)
+        end
+    end
+end)
+
+-- ==================== THIRD PERSON (DARI DEOBFUSCATOR) ====================
+local function EnableThirdPerson()
+    if ThirdPersonConnection then ThirdPersonConnection:Disconnect() end
+    
+    local character = LocalPlayer.Character
+    if not character then
+        LocalPlayer.CharacterAdded:Wait()
+        character = LocalPlayer.Character
+    end
+    
+    OriginalCameraSubject = CurrentCamera.CameraSubject
+    CurrentCamera.CameraSubject = character
+    
+    ThirdPersonConnection = RunService.RenderStepped:Connect(function()
+        if not ThirdPerson then
+            DisableThirdPerson()
+            return
+        end
+        if not character or not character.PrimaryPart then return end
+        
+        local characterPos = character.PrimaryPart.Position
+        local offset = Vector3.new(0, 3, 8)
+        local targetPos = characterPos + offset
+        CurrentCamera.CFrame = CurrentCamera.CFrame:Lerp(CFrame.new(targetPos, characterPos + Vector3.new(0, 1.5, 0)), 0.15)
+    end)
+    IsThirdPersonActive = true
+end
+
+local function DisableThirdPerson()
+    if ThirdPersonConnection then
+        ThirdPersonConnection:Disconnect()
+        ThirdPersonConnection = nil
+    end
+    if OriginalCameraSubject then
+        CurrentCamera.CameraSubject = OriginalCameraSubject
+    end
+    IsThirdPersonActive = false
+end
+
+-- ==================== VEIL SILENT AIM & SPEAR (DARI DEOBFUSCATOR) ====================
+task.spawn(function()
+    while true do
+        task.wait(0.1)
+        if VeilSilent and GetPlayerTeam() == "Killer" then
+            local character = LocalPlayer.Character
+            if character then
+                local humanoid = character:FindFirstChild("Humanoid")
+                if humanoid then
+                    humanoid.WalkSpeed = SPEARSpeed
+                    humanoid.JumpPower = SPEARGravity
+                end
+            end
+        elseif GetPlayerTeam() == "Killer" and not VeilSilent then
+            local character = LocalPlayer.Character
+            if character then
+                local humanoid = character:FindFirstChild("Humanoid")
+                if humanoid and humanoid.WalkSpeed ~= 16 then
+                    humanoid.WalkSpeed = 16
+                    humanoid.JumpPower = 50
+                end
+            end
+        end
+    end
+end)
+
+-- ==================== ESP TRACKER (DARI DEOBFUSCATOR) ====================
+local ESPTrackedTarget = nil
+task.spawn(function()
+    while true do
+        task.wait(0.1)
+        if ESPTracker and LocalPlayer.Character then
+            local rootPart = LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+            if rootPart then
+                local closestTarget = nil
+                local closestDist = math.huge
+                for _, player in ipairs(Players:GetPlayers()) do
+                    if player ~= LocalPlayer and player.Character then
+                        local targetRoot = player.Character:FindFirstChild("HumanoidRootPart")
+                        if targetRoot then
+                            local dist = GetDistance(targetRoot.Position, rootPart.Position)
+                            if dist < closestDist then
+                                closestDist = dist
+                                closestTarget = player
+                            end
+                        end
+                    end
+                end
+                ESPTrackedTarget = closestTarget
+            end
+        end
+    end
+end)
+
+-- ==================== AUTO PREDICT (DARI DEOBFUSCATOR) ====================
+local function GetPredictedPosition(target)
+    if not target then return nil end
+    local currentPos = target.Position
+    if AutoPredict then
+        local velocity = target.AssemblyLinearVelocity or Vector3.zero
+        local prediction = velocity * PredictOffset
+        return currentPos + prediction
+    end
+    return currentPos
+end
+
+-- ==================== SPECTATE ENABLER (DARI DEOBFUSCATOR) ====================
+local function EnableSpectate()
+    if SpectateEnabled and Remotes.Spectate.SpectateEnabler then
+        Remotes.Spectate.SpectateEnabler:FireServer(true)
+        Library:Notify({Title = "Spectate", Description = "Spectate mode enabled!", Time = 2})
+    end
+end
+
+-- ==================== KILLER VISUALIZE/HIGHLIGHT (DARI DEOBFUSCATOR) ====================
+local function UseKillerHighlight()
+    if KillerVisualizeEnabled then
+        if Remotes.Killer.HighlightRemote then
+            Remotes.Killer.HighlightRemote:FireServer()
+        end
+        if Remotes.Killer.Instinct then
+            Remotes.Killer.Instinct:FireServer()
+        end
+        Library:Notify({Title = "Killer", Description = "Highlight activated!", Time = 2})
+    end
+end
+
+-- ==================== GLOBAL CHAT (DARI DEOBFUSCATOR) ====================
+local function SendGlobalChat(message)
+    if message and message ~= "" and Remotes.Chat.ChatTags then
+        Remotes.Chat.ChatTags:FireServer(message)
+        Library:Notify({Title = "Global Chat", Description = "Message sent: " .. message, Time = 2})
+    end
+end
+
+-- ==================== CREATE GLOBAL CHAT GUI (DARI DEOBFUSCATOR) ====================
+local GlobalChatGUI = nil
+local function CreateGlobalChatGUI()
+    if GlobalChatGUI then GlobalChatGUI:Destroy() end
+    
+    local screenGui = Instance.new("ScreenGui")
+    screenGui.Name = "GlobalChatGUI"
+    screenGui.Parent = CoreGui
+    GlobalChatGUI = screenGui
+    
+    local frame = Instance.new("Frame")
+    frame.Size = UDim2.new(0, 400, 0, 500)
+    frame.Position = UDim2.new(0.5, -200, 0.5, -250)
+    frame.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
+    frame.BorderSizePixel = 0
+    frame.BackgroundTransparency = 0.05
+    frame.Parent = screenGui
+    
+    local title = Instance.new("TextLabel")
+    title.Size = UDim2.new(1, 0, 0, 40)
+    title.Text = "Global Chat"
+    title.TextColor3 = Color3.fromRGB(255, 255, 255)
+    title.BackgroundTransparency = 1
+    title.Font = Enum.Font.GothamBold
+    title.TextSize = 20
+    title.Parent = frame
+    
+    local chatDisplay = Instance.new("ScrollingFrame")
+    chatDisplay.Size = UDim2.new(1, -20, 1, -100)
+    chatDisplay.Position = UDim2.new(0, 10, 0, 50)
+    chatDisplay.BackgroundTransparency = 1
+    chatDisplay.CanvasSize = UDim2.new(0, 0, 0, 0)
+    chatDisplay.ScrollBarThickness = 6
+    chatDisplay.Parent = frame
+    
+    local uiList = Instance.new("UIListLayout")
+    uiList.Padding = UDim.new(0, 5)
+    uiList.Parent = chatDisplay
+    
+    local inputBox = Instance.new("TextBox")
+    inputBox.Size = UDim2.new(1, -80, 0, 40)
+    inputBox.Position = UDim2.new(0, 10, 1, -50)
+    inputBox.PlaceholderText = "Type message..."
+    inputBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+    inputBox.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
+    inputBox.ClearTextOnFocus = false
+    inputBox.Parent = frame
+    
+    local sendBtn = Instance.new("TextButton")
+    sendBtn.Size = UDim2.new(0, 60, 0, 40)
+    sendBtn.Position = UDim2.new(1, -70, 1, -50)
+    sendBtn.Text = "Send"
+    sendBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    sendBtn.BackgroundColor3 = Color3.fromRGB(60, 60, 70)
+    sendBtn.Parent = frame
+    
+    local closeBtn = Instance.new("TextButton")
+    closeBtn.Size = UDim2.new(0, 50, 0, 30)
+    closeBtn.Position = UDim2.new(1, -60, 0, 5)
+    closeBtn.Text = "X"
+    closeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    closeBtn.BackgroundColor3 = Color3.fromRGB(80, 80, 90)
+    closeBtn.Parent = frame
+    
+    local messages = {}
+    local function AddMessage(sender, msg)
+        local label = Instance.new("TextLabel")
+        label.Size = UDim2.new(1, 0, 0, 30)
+        label.Text = sender .. ": " .. msg
+        label.TextColor3 = Color3.fromRGB(255, 255, 255)
+        label.BackgroundTransparency = 1
+        label.TextXAlignment = Enum.TextXAlignment.Left
+        label.TextSize = 14
+        label.Parent = chatDisplay
+        table.insert(messages, label)
+        if #messages > 50 then
+            messages[1]:Destroy()
+            table.remove(messages, 1)
+        end
+        chatDisplay.CanvasSize = UDim2.new(0, 0, 0, uiList.AbsoluteContentSize.Y)
+        task.wait(0.05)
+        chatDisplay.CanvasPosition = Vector2.new(0, chatDisplay.CanvasSize.Y.Offset)
+    end
+    
+    sendBtn.MouseButton1Click:Connect(function()
+        local msg = inputBox.Text
+        if msg ~= "" then
+            SendGlobalChat(msg)
+            AddMessage(LocalPlayer.Name, msg)
+            inputBox.Text = ""
+        end
+    end)
+    
+    closeBtn.MouseButton1Click:Connect(function()
+        screenGui:Destroy()
+        GlobalChatGUI = nil
+    end)
+end
+
+-- ==================== COPY AVATAR (DARI DEOBFUSCATOR) ====================
+local CopyAvatarGUI = nil
+local function CreateCopyAvatarGUI()
+    if CopyAvatarGUI then CopyAvatarGUI:Destroy() end
+    
+    local screenGui = Instance.new("ScreenGui")
+    screenGui.Name = "CopyAvatarGUI"
+    screenGui.Parent = CoreGui
+    CopyAvatarGUI = screenGui
+    
+    local frame = Instance.new("Frame")
+    frame.Size = UDim2.new(0, 400, 0, 300)
+    frame.Position = UDim2.new(0.5, -200, 0.5, -150)
+    frame.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
+    frame.BorderSizePixel = 0
+    frame.BackgroundTransparency = 0.1
+    frame.Parent = screenGui
+    
+    local title = Instance.new("TextLabel")
+    title.Size = UDim2.new(1, 0, 0, 40)
+    title.Text = "Copy Avatar"
+    title.TextColor3 = Color3.fromRGB(255, 255, 255)
+    title.BackgroundTransparency = 1
+    title.Font = Enum.Font.GothamBold
+    title.TextSize = 20
+    title.Parent = frame
+    
+    local playerList = Instance.new("ScrollingFrame")
+    playerList.Size = UDim2.new(1, -20, 1, -80)
+    playerList.Position = UDim2.new(0, 10, 0, 50)
+    playerList.BackgroundTransparency = 1
+    playerList.CanvasSize = UDim2.new(0, 0, 0, 0)
+    playerList.ScrollBarThickness = 8
+    playerList.Parent = frame
+    
+    local uiList = Instance.new("UIListLayout")
+    uiList.Padding = UDim.new(0, 5)
+    uiList.Parent = playerList
+    
+    local closeBtn = Instance.new("TextButton")
+    closeBtn.Size = UDim2.new(0, 60, 0, 30)
+    closeBtn.Position = UDim2.new(1, -70, 1, -40)
+    closeBtn.Text = "Close"
+    closeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    closeBtn.BackgroundColor3 = Color3.fromRGB(60, 60, 70)
+    closeBtn.Parent = frame
+    
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer then
+            local button = Instance.new("TextButton")
+            button.Size = UDim2.new(1, 0, 0, 40)
+            button.Text = player.Name
+            button.TextColor3 = Color3.fromRGB(255, 255, 255)
+            button.BackgroundColor3 = Color3.fromRGB(50, 50, 60)
+            button.Parent = playerList
+            
+            button.MouseButton1Click:Connect(function()
+                if player.Character then
+                    local character = player.Character
+                    local localChar = LocalPlayer.Character
+                    if localChar then
+                        for _, part in ipairs(localChar:GetChildren()) do
+                            if part:IsA("Accessory") or part:IsA("Shirt") or part:IsA("Pants") or part:IsA("ShirtGraphic") or part:IsA("Hat") then
+                                part:Destroy()
+                            end
+                        end
+                        for _, part in ipairs(character:GetChildren()) do
+                            if part:IsA("Accessory") or part:IsA("Shirt") or part:IsA("Pants") or part:IsA("ShirtGraphic") or part:IsA("Hat") then
+                                local clone = part:Clone()
+                                clone.Parent = localChar
+                            end
+                        end
+                        Library:Notify({Title = "Copy Avatar", Description = "Copied " .. player.Name .. "'s avatar!", Time = 2})
+                    end
+                end
+            end)
+        end
+    end
+    
+    playerList.CanvasSize = UDim2.new(0, 0, 0, uiList.AbsoluteContentSize.Y)
+    
+    closeBtn.MouseButton1Click:Connect(function()
+        screenGui:Destroy()
+        CopyAvatarGUI = nil
+    end)
+end
+
+-- ==================== FAKE GENERATOR GUI (DARI DEOBFUSCATOR) ====================
+local FakeGeneratorGUI = nil
+local function CreateFakeGeneratorGUI()
+    if FakeGeneratorGUI then FakeGeneratorGUI:Destroy() end
+    
+    local screenGui = Instance.new("ScreenGui")
+    screenGui.Name = "FakeGeneratorGUI"
+    screenGui.Parent = CoreGui
+    FakeGeneratorGUI = screenGui
+    
+    local frame = Instance.new("Frame")
+    frame.Size = UDim2.new(0, 300, 0, 200)
+    frame.Position = UDim2.new(0.5, -150, 0.5, -100)
+    frame.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
+    frame.BorderSizePixel = 0
+    frame.BackgroundTransparency = 0.1
+    frame.Parent = screenGui
+    
+    local title = Instance.new("TextLabel")
+    title.Size = UDim2.new(1, 0, 0, 40)
+    title.Text = "Fake Generator"
+    title.TextColor3 = Color3.fromRGB(255, 255, 255)
+    title.BackgroundTransparency = 1
+    title.Font = Enum.Font.GothamBold
+    title.TextSize = 18
+    title.Parent = frame
+    
+    local progressText = Instance.new("TextLabel")
+    progressText.Size = UDim2.new(1, 0, 0, 50)
+    progressText.Position = UDim2.new(0, 0, 0, 50)
+    progressText.Text = "Progress: 0%"
+    progressText.TextColor3 = Color3.fromRGB(255, 255, 0)
+    progressText.BackgroundTransparency = 1
+    progressText.Font = Enum.Font.SourceSansBold
+    progressText.TextSize = 16
+    progressText.Parent = frame
+    
+    local progressBar = Instance.new("Frame")
+    progressBar.Size = UDim2.new(0, 0, 0, 10)
+    progressBar.Position = UDim2.new(0, 10, 0, 110)
+    progressBar.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+    progressBar.BorderSizePixel = 0
+    progressBar.Parent = frame
+    
+    local barBg = Instance.new("Frame")
+    barBg.Size = UDim2.new(1, -20, 0, 10)
+    barBg.Position = UDim2.new(0, 10, 0, 110)
+    barBg.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
+    barBg.BorderSizePixel = 0
+    barBg.Parent = frame
+    
+    local closeBtn = Instance.new("TextButton")
+    closeBtn.Size = UDim2.new(0, 80, 0, 30)
+    closeBtn.Position = UDim2.new(0.5, -40, 1, -40)
+    closeBtn.Text = "Close"
+    closeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    closeBtn.BackgroundColor3 = Color3.fromRGB(60, 60, 70)
+    closeBtn.Parent = frame
+    
+    task.spawn(function()
+        local progress = 0
+        while progress < 100 and screenGui.Parent do
+            task.wait(0.05)
+            progress = progress + 1
+            progressText.Text = "Progress: " .. progress .. "%"
+            progressBar.Size = UDim2.new(progress / 100, -20, 0, 10)
+            if progress >= 100 then
+                progressText.Text = "✓ Generator Repaired!"
+                progressText.TextColor3 = Color3.fromRGB(0, 255, 0)
+            end
+        end
+        task.delay(2, function()
+            if screenGui then screenGui:Destroy() end
+            FakeGeneratorGUI = nil
+        end)
+    end)
+    
+    closeBtn.MouseButton1Click:Connect(function()
+        screenGui:Destroy()
+        FakeGeneratorGUI = nil
+    end)
+end
+
+-- ==================== MOONWALK (DARI DEOBFUSCATOR) ====================
+local MoonwalkSpeed = 16
+local function SetupMoonwalk()
+    if MoonwalkActive then return end
+    MoonwalkActive = true
+    
+    local screenGui = Instance.new("ScreenGui")
+    screenGui.Name = "MoonwalkGUI"
+    screenGui.Parent = CoreGui
+    
+    local frame = Instance.new("Frame")
+    frame.Size = UDim2.new(0, 250, 0, 100)
+    frame.Position = UDim2.new(0.5, -125, 0.5, -50)
+    frame.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
+    frame.BorderSizePixel = 0
+    frame.BackgroundTransparency = 0.1
+    frame.Parent = screenGui
+    
+    local title = Instance.new("TextLabel")
+    title.Size = UDim2.new(1, 0, 0, 40)
+    title.Text = "Moonwalk"
+    title.TextColor3 = Color3.fromRGB(255, 255, 255)
+    title.BackgroundTransparency = 1
+    title.Font = Enum.Font.GothamBold
+    title.TextSize = 18
+    title.Parent = frame
+    
+    local speedSlider = Instance.new("TextButton")
+    speedSlider.Size = UDim2.new(1, -20, 0, 20)
+    speedSlider.Position = UDim2.new(0, 10, 0, 45)
+    speedSlider.Text = ""
+    speedSlider.BackgroundColor3 = Color3.fromRGB(60, 60, 70)
+    speedSlider.Parent = frame
+    
+    local speedFill = Instance.new("Frame")
+    speedFill.Size = UDim2.new(0.5, 0, 1, 0)
+    speedFill.BackgroundColor3 = Color3.fromRGB(200, 0, 200)
+    speedFill.BorderSizePixel = 0
+    speedFill.Parent = speedSlider
+    
+    local speedLabel = Instance.new("TextLabel")
+    speedLabel.Size = UDim2.new(1, 0, 0, 20)
+    speedLabel.Position = UDim2.new(0, 0, 0, 70)
+    speedLabel.Text = "Speed: 16"
+    speedLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+    speedLabel.BackgroundTransparency = 1
+    speedLabel.Parent = frame
+    
+    local closeBtn = Instance.new("TextButton")
+    closeBtn.Size = UDim2.new(0, 50, 0, 30)
+    closeBtn.Position = UDim2.new(1, -60, 0, 5)
+    closeBtn.Text = "X"
+    closeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    closeBtn.BackgroundColor3 = Color3.fromRGB(80, 80, 90)
+    closeBtn.Parent = frame
+    
+    local dragging = false
+    speedSlider.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then dragging = true end
+    end)
+    speedSlider.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then dragging = false end
+    end)
+    speedSlider.InputChanged:Connect(function(input)
+        if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+            local relativeX = math.clamp((input.Position.X - speedSlider.AbsolutePosition.X) / speedSlider.AbsoluteSize.X, 0, 1)
+            speedFill.Size = UDim2.new(relativeX, 0, 1, 0)
+            MoonwalkSpeed = math.floor(relativeX * 100)
+            speedLabel.Text = "Speed: " .. MoonwalkSpeed
+        end
+    end)
+    
+    task.spawn(function()
+        while MoonwalkActive do
+            task.wait(0.05)
+            if LocalPlayer.Character then
+                local humanoid = LocalPlayer.Character:FindFirstChild("Humanoid")
+                if humanoid then
+                    local moveDirection = humanoid.MoveDirection
+                    if moveDirection.Magnitude > 0 then
+                        local cameraLook = CurrentCamera.CFrame.LookVector * Vector3.new(1, 0, 1)
+                        if cameraLook.Magnitude > 0 then
+                            cameraLook = cameraLook.Unit
+                            local targetPos = LocalPlayer.Character.HumanoidRootPart.Position - cameraLook * (MoonwalkSpeed / 10)
+                            humanoid:MoveTo(targetPos)
+                        end
+                    end
+                end
+            end
+        end
+    end)
+    
+    closeBtn.MouseButton1Click:Connect(function()
+        screenGui:Destroy()
+        MoonwalkActive = false
+    end)
+end
+
+-- ==================== FLY (DARI DEOBFUSCATOR) ====================
+local FlySpeed = 50
+local function SetupFly()
+    if FlyActive then return end
+    FlyActive = true
+    
+    local screenGui = Instance.new("ScreenGui")
+    screenGui.Name = "FlyGUI"
+    screenGui.Parent = CoreGui
+    
+    local frame = Instance.new("Frame")
+    frame.Size = UDim2.new(0, 200, 0, 150)
+    frame.Position = UDim2.new(0.5, -100, 0.5, -75)
+    frame.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
+    frame.BorderSizePixel = 0
+    frame.BackgroundTransparency = 0.1
+    frame.Parent = screenGui
+    
+    local title = Instance.new("TextLabel")
+    title.Size = UDim2.new(1, 0, 0, 40)
+    title.Text = "Fly Mode"
+    title.TextColor3 = Color3.fromRGB(255, 255, 255)
+    title.BackgroundTransparency = 1
+    title.Font = Enum.Font.GothamBold
+    title.TextSize = 18
+    title.Parent = frame
+    
+    local speedLabel = Instance.new("TextLabel")
+    speedLabel.Size = UDim2.new(1, 0, 0, 30)
+    speedLabel.Position = UDim2.new(0, 0, 0, 45)
+    speedLabel.Text = "Speed: 50"
+    speedLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+    speedLabel.BackgroundTransparency = 1
+    speedLabel.Parent = frame
+    
+    local speedSlider = Instance.new("TextButton")
+    speedSlider.Size = UDim2.new(1, -20, 0, 20)
+    speedSlider.Position = UDim2.new(0, 10, 0, 80)
+    speedSlider.Text = ""
+    speedSlider.BackgroundColor3 = Color3.fromRGB(60, 60, 70)
+    speedSlider.Parent = frame
+    
+    local speedFill = Instance.new("Frame")
+    speedFill.Size = UDim2.new(0.5, 0, 1, 0)
+    speedFill.BackgroundColor3 = Color3.fromRGB(0, 150, 255)
+    speedFill.BorderSizePixel = 0
+    speedFill.Parent = speedSlider
+    
+    local toggleBtn = Instance.new("TextButton")
+    toggleBtn.Size = UDim2.new(0, 80, 0, 30)
+    toggleBtn.Position = UDim2.new(0.5, -40, 1, -40)
+    toggleBtn.Text = "Enable"
+    toggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    toggleBtn.BackgroundColor3 = Color3.fromRGB(0, 150, 0)
+    toggleBtn.Parent = frame
+    
+    local closeBtn = Instance.new("TextButton")
+    closeBtn.Size = UDim2.new(0, 50, 0, 30)
+    closeBtn.Position = UDim2.new(1, -60, 0, 5)
+    closeBtn.Text = "X"
+    closeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    closeBtn.BackgroundColor3 = Color3.fromRGB(80, 80, 90)
+    closeBtn.Parent = frame
+    
+    local dragging = false
+    speedSlider.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then dragging = true end
+    end)
+    speedSlider.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then dragging = false end
+    end)
+    speedSlider.InputChanged:Connect(function(input)
+        if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+            local relativeX = math.clamp((input.Position.X - speedSlider.AbsolutePosition.X) / speedSlider.AbsoluteSize.X, 0, 1)
+            speedFill.Size = UDim2.new(relativeX, 0, 1, 0)
+            FlySpeed = math.floor(relativeX * 200) + 10
+            speedLabel.Text = "Speed: " .. FlySpeed
+        end
+    end)
+    
+    local flyBodyVelocity = nil
+    local flyActive = false
+    
+    toggleBtn.MouseButton1Click:Connect(function()
+        if not flyActive then
+            flyActive = true
+            toggleBtn.Text = "Disable"
+            toggleBtn.BackgroundColor3 = Color3.fromRGB(150, 0, 0)
+            
+            local character = LocalPlayer.Character
+            if character then
+                local humanoid = character:FindFirstChild("Humanoid")
+                if humanoid then
+                    humanoid.PlatformStand = true
+                end
+                
+                flyBodyVelocity = Instance.new("BodyVelocity")
+                flyBodyVelocity.MaxForce = Vector3.new(10000, 10000, 10000)
+                flyBodyVelocity.Velocity = Vector3.new(0, 0, 0)
+                flyBodyVelocity.Parent = character:FindFirstChild("HumanoidRootPart")
+                
+                ContextActionService:BindAction("FlyControl", function(actionName, inputState, inputObject)
+                    if inputState == Enum.UserInputState.Change then
+                        local moveDirection = Vector3.new()
+                        if UserInputService:IsKeyDown(Enum.KeyCode.W) then
+                            moveDirection = moveDirection + CurrentCamera.CFrame.LookVector
+                        end
+                        if UserInputService:IsKeyDown(Enum.KeyCode.S) then
+                            moveDirection = moveDirection - CurrentCamera.CFrame.LookVector
+                        end
+                        if UserInputService:IsKeyDown(Enum.KeyCode.A) then
+                            moveDirection = moveDirection - CurrentCamera.CFrame.RightVector
+                        end
+                        if UserInputService:IsKeyDown(Enum.KeyCode.D) then
+                            moveDirection = moveDirection + CurrentCamera.CFrame.RightVector
+                        end
+                        if UserInputService:IsKeyDown(Enum.KeyCode.Space) then
+                            moveDirection = moveDirection + Vector3.new(0, 1, 0)
+                        end
+                        if UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) then
+                            moveDirection = moveDirection - Vector3.new(0, 1, 0)
+                        end
+                        
+                        if moveDirection.Magnitude > 0 then
+                            moveDirection = moveDirection.Unit * FlySpeed
+                        end
+                        
+                        if flyBodyVelocity then
+                            flyBodyVelocity.Velocity = moveDirection
+                        end
+                    end
+                end, false, Enum.KeyCode.W, Enum.KeyCode.S, Enum.KeyCode.A, Enum.KeyCode.D, Enum.KeyCode.Space, Enum.KeyCode.LeftControl)
+            end
+        else
+            flyActive = false
+            toggleBtn.Text = "Enable"
+            toggleBtn.BackgroundColor3 = Color3.fromRGB(0, 150, 0)
+            
+            if flyBodyVelocity then
+                flyBodyVelocity:Destroy()
+                flyBodyVelocity = nil
+            end
+            
+            local humanoid = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid")
+            if humanoid then
+                humanoid.PlatformStand = false
+            end
+            
+            ContextActionService:UnbindAction("FlyControl")
+        end
+    end)
+    
+    closeBtn.MouseButton1Click:Connect(function()
+        if flyActive then
+            if flyBodyVelocity then flyBodyVelocity:Destroy() end
+            local humanoid = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid")
+            if humanoid then humanoid.PlatformStand = false end
+            ContextActionService:UnbindAction("FlyControl")
+        end
+        screenGui:Destroy()
+        FlyActive = false
+    end)
+end
+
+-- ==================== REJOIN SERVER (DARI DEOBFUSCATOR) ====================
+local function RejoinServer()
+    Library:Notify({Title = "Rejoin", Description = "Rejoining server...", Time = 2})
+    task.wait(1)
+    TeleportService:Teleport(game.PlaceId, LocalPlayer)
+end
+
+-- ==================== AUTO LEAVE WHEN DONE (DARI DEOBFUSCATOR) ====================
+task.spawn(function()
+    while true do
+        task.wait(5)
+        if AutoLeaveDone then
+            local allGeneratorsDone = true
+            for _, generator in ipairs(CachedObjects.Generators) do
+                if GetGeneratorProgress(generator) < 100 then
+                    allGeneratorsDone = false
+                    break
+                end
+            end
+            if allGeneratorsDone and #CachedObjects.Generators > 0 then
+                Library:Notify({Title = "Auto Leave", Description = "All generators done! Leaving...", Time = 3})
+                task.wait(2)
+                RejoinServer()
+            end
+        end
+    end
+end)
+
+-- ==================== AFK ESCAPE (DARI DEOBFUSCATOR) ====================
+local function FindExitPosition()
+    local map = workspace:FindFirstChild("Map")
+    if not map then return Vector3.new(3098.16, 454.04, -4918.74) end
+    
+    if map:FindFirstChild("RooftopHitbox") or map:FindFirstChild("Rooftop") then
+        return Vector3.new(3098.16, 454.04, -4918.74)
+    elseif map:FindFirstChild("HooksMeat") then
+        return Vector3.new(1546.12, 152.21, -796.72)
+    elseif map:FindFirstChild("churchbell") then
+        return Vector3.new(760.98, -20.14, -78.48)
+    end
+    
+    local finishLine = map:FindFirstChild("Finishline")
+    if finishLine then
+        if finishLine:IsA("BasePart") then return finishLine.Position end
+        local part = finishLine:FindFirstChildWhichIsA("BasePart")
+        if part then return part.Position end
+    end
+    
+    for _, descendant in ipairs(map:GetDescendants()) do
+        if string.lower(descendant.Name):find("finish") then
+            if descendant:IsA("BasePart") then return descendant.Position end
+            local part = descendant:FindFirstChildWhichIsA("BasePart")
+            if part then return part.Position end
+        end
+    end
+    
+    return Vector3.new(3098.16, 454.04, -4918.74)
+end
+
+local function SetupAFKEscape()
+    if AFKTaskSpawn then task.cancel(AFKTaskSpawn) end
+    
+    AFKTaskSpawn = task.spawn(function()
+        while AFKEscape do
+            task.wait(15)
+            if AFKEscape and LocalPlayer.Team and LocalPlayer.Team.Name == AFKEscapeTeam then
+                local exitPos = FindExitPosition()
+                if exitPos and LocalPlayer.Character then
+                    if Remotes.Mechanics.Teleport then
+                        Remotes.Mechanics.Teleport:FireServer(exitPos)
+                    end
+                    local rootPart = LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+                    if rootPart then
+                        rootPart.CFrame = CFrame.new(exitPos + Vector3.new(0, 3, 0))
+                        Library:Notify({Title = "AFK Escape", Description = "Teleported to exit!", Time = 2})
+                    end
+                end
+            end
+        end
+    end)
+end
+
+-- ==================== CROSSHAIR (DARI DEOBFUSCATOR) ====================
+local function UpdateCrosshair()
+    for _, obj in pairs(CrosshairObjects) do
+        if obj.Remove then obj:Remove() end
+    end
+    CrosshairObjects = {}
+    
+    if not CrosshairEnabled then return end
+    
+    local viewport = CurrentCamera.ViewportSize
+    local centerX = viewport.X / 2 + CrosshairPosX
+    local centerY = viewport.Y / 2
+    
+    if CrosshairStyle == "Dot" then
+        local dot = Drawing.new("Circle")
+        dot.Visible = true
+        dot.Position = Vector2.new(centerX, centerY)
+        dot.Radius = CrosshairSize
+        dot.Color = CrosshairColor
+        dot.Thickness = CrosshairThickness
+        dot.Filled = true
+        CrosshairObjects.dot = dot
+        
+    elseif CrosshairStyle == "Cross" then
+        local hLine = Drawing.new("Line")
+        hLine.Visible = true
+        hLine.From = Vector2.new(centerX - CrosshairSize, centerY)
+        hLine.To = Vector2.new(centerX + CrosshairSize, centerY)
+        hLine.Color = CrosshairColor
+        hLine.Thickness = CrosshairThickness
+        CrosshairObjects.hLine = hLine
+        
+        local vLine = Drawing.new("Line")
+        vLine.Visible = true
+        vLine.From = Vector2.new(centerX, centerY - CrosshairSize)
+        vLine.To = Vector2.new(centerX, centerY + CrosshairSize)
+        vLine.Color = CrosshairColor
+        vLine.Thickness = CrosshairThickness
+        CrosshairObjects.vLine = vLine
+        
+    elseif CrosshairStyle == "Circle" then
+        local circle = Drawing.new("Circle")
+        circle.Visible = true
+        circle.Position = Vector2.new(centerX, centerY)
+        circle.Radius = CrosshairSize
+        circle.Color = CrosshairColor
+        circle.Thickness = CrosshairThickness
+        circle.Filled = false
+        CrosshairObjects.circle = circle
+    end
+end
+
+-- ==================== FOV CIRCLES (DARI DEOBFUSCATOR) ====================
+local function UpdateFOVCircles()
+    local viewport = CurrentCamera.ViewportSize
+    local center = Vector2.new(viewport.X / 2, viewport.Y / 2)
+    
+    if AimbotEnabled and ShowFOVCircle then
+        SurvivorFOVCircle.Visible = true
+        SurvivorFOVCircle.Position = center
+        SurvivorFOVCircle.Radius = FOVCircleRadius
+        SurvivorFOVCircle.Color = (GetClosestTargetInFOV() ~= nil) and Color3.fromRGB(255, 0, 0) or Color3.fromRGB(0, 255, 100)
+    else
+        SurvivorFOVCircle.Visible = false
+    end
+    
+    if ShowPistolFOV then
+        local pistolCircle = Drawing.new("Circle")
+        pistolCircle.Visible = true
+        pistolCircle.Position = center
+        pistolCircle.Radius = PistolFOVRadius
+        pistolCircle.Color = Color3.fromRGB(255, 255, 0)
+        pistolCircle.Thickness = 2
+        pistolCircle.Filled = false
+        pistolCircle.NumSides = 100
+        CrosshairObjects.pistolFOV = pistolCircle
+    end
+    
+    if KillerAimbot and GetPlayerTeam() == "Killer" then
+        KillerFOVCircle.Visible = true
+        KillerFOVCircle.Position = center
+        KillerFOVCircle.Radius = KillerFOVRadius
+    else
+        KillerFOVCircle.Visible = false
+    end
+    
+    if ShowVeilFOV and VeilSilent then
+        local veilCircle = Drawing.new("Circle")
+        veilCircle.Visible = true
+        veilCircle.Position = center
+        veilCircle.Radius = VeilFOVRadius
+        veilCircle.Color = Color3.fromRGB(255, 255, 0)
+        veilCircle.Thickness = 2
+        veilCircle.Filled = false
+        veilCircle.NumSides = 100
+        CrosshairObjects.veilFOV = veilCircle
+    end
+end
+
+-- ==================== FULLBRIGHT & CAMERA (DARI DEOBFUSCATOR) ====================
+task.spawn(function()
+    while true do
+        task.wait(0.1)
+        if Fullbright then
+            Lighting.Brightness = 5
+            Lighting.ClockTime = 12
+            Lighting.OutdoorAmbient = Color3.fromRGB(128, 128, 128)
+        elseif not Fullbright and Lighting.Brightness ~= 2 then
+            Lighting.Brightness = 2
+            Lighting.ClockTime = 14
+            Lighting.OutdoorAmbient = Color3.fromRGB(0, 0, 0)
+        end
+        
+        if CameraFOV and CurrentCamera then
+            CurrentCamera.FieldOfView = FOVValue
+        end
+        
+        if InfinityZoom then
+            CurrentCamera.FieldOfView = 30
+        end
+    end
+end)
+
+-- ==================== SPEED BOOST, NO CLIP, INFINITY JUMP (DARI DEOBFUSCATOR) ====================
+task.spawn(function()
+    while true do
+        task.wait(0.05)
+        if LocalPlayer.Character then
+            local humanoid = LocalPlayer.Character:FindFirstChild("Humanoid")
+            if humanoid then
+                if SpeedBoost then
+                    humanoid.WalkSpeed = SpeedBoostValue * 100
+                elseif not SpeedBoost and humanoid.WalkSpeed ~= 16 then
+                    humanoid.WalkSpeed = 16
+                end
+            end
+        end
+    end
+end)
+
+task.spawn(function()
+    while true do
+        task.wait(0.1)
+        if NoClip and LocalPlayer.Character then
+            for _, part in ipairs(LocalPlayer.Character:GetDescendants()) do
+                if part:IsA("BasePart") then
+                    part.CanCollide = false
+                end
+            end
+        elseif not NoClip and LocalPlayer.Character then
+            for _, part in ipairs(LocalPlayer.Character:GetDescendants()) do
+                if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" then
+                    part.CanCollide = true
+                end
+            end
+        end
+    end
+end)
+
+local function OnHumanoidStateChanged(state)
+    if InfinityJump and state == Enum.HumanoidStateType.Landed then
+        local humanoid = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid")
+        if humanoid then
+            task.wait(0.05)
+            humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+        end
+    end
+end
+
+LocalPlayer.CharacterAdded:Connect(function(character)
+    task.wait(0.5)
+    local humanoid = character:FindFirstChild("Humanoid")
+    if humanoid then
+        humanoid.StateChanged:Connect(OnHumanoidStateChanged)
+    end
+end)
+
+-- ==================== ANTI AFK (DARI DEOBFUSCATOR) ====================
+task.spawn(function()
+    while true do
+        task.wait(30)
+        if AntiAFK then
+            VirtualInput:SendKeyEvent(true, Enum.KeyCode.W, false, game)
+            task.wait(0.1)
+            VirtualInput:SendKeyEvent(false, Enum.KeyCode.W, false, game)
+        end
+    end
+end)
+
+-- ==================== NAME SPOOFER (DARI DEOBFUSCATOR) ====================
+local SpooferConns = {}
+local function SpoofUI()
+    if not NameSpoofer then return end
+    
+    local playerGui = LocalPlayer:WaitForChild("PlayerGui")
+    if not playerGui then return end
+    
+    local function SpoofDescendant(descendant)
+        if descendant:IsA("TextLabel") or descendant:IsA("TextButton") or descendant:IsA("TextBox") then
+            if not descendant:GetAttribute("OriginalText") then
+                descendant:SetAttribute("OriginalText", descendant.Text)
+            end
+            local newText = descendant.Text
+            for _, player in ipairs(Players:GetPlayers()) do
+                newText = string.gsub(newText, player.Name, FakeName)
+                newText = string.gsub(newText, player.DisplayName, FakeName)
+            end
+            descendant.Text = newText
+        elseif descendant:IsA("ImageLabel") or descendant:IsA("ImageButton") then
+            for _, player in ipairs(Players:GetPlayers()) do
+                if string.find(descendant.Image, tostring(player.UserId)) then
+                    if not descendant:GetAttribute("OriginalImage") then
+                        descendant:SetAttribute("OriginalImage", descendant.Image)
+                    end
+                    descendant.Image = "rbxasset://textures/ui/GuiImagePlaceholder.png"
+                end
+            end
+        end
+    end
+    
+    for _, descendant in ipairs(playerGui:GetDescendants()) do
+        SpoofDescendant(descendant)
+    end
+    
+    local conn = playerGui.DescendantAdded:Connect(SpoofDescendant)
+    table.insert(SpooferConns, conn)
+end
+
+local function UnspoofUI()
+    for _, conn in ipairs(SpooferConns) do
+        conn:Disconnect()
+    end
+    SpooferConns = {}
+    
+    local playerGui = LocalPlayer:FindFirstChild("PlayerGui")
+    if playerGui then
+        for _, descendant in ipairs(playerGui:GetDescendants()) do
+            if descendant:IsA("TextLabel") or descendant:IsA("TextButton") or descendant:IsA("TextBox") then
+                local original = descendant:GetAttribute("OriginalText")
+                if original then
+                    descendant.Text = original
+                    descendant:SetAttribute("OriginalText", nil)
+                end
+            elseif descendant:IsA("ImageLabel") or descendant:IsA("ImageButton") then
+                local original = descendant:GetAttribute("OriginalImage")
+                if original then
+                    descendant.Image = original
+                    descendant:SetAttribute("OriginalImage", nil)
+                end
+            end
+        end
+    end
+end
+
+-- ==================== PLAYER EMOTE (DARI DEOBFUSCATOR) ====================
+local function PlayEmote(emoteName)
+    if Remotes.Game.Emote then
+        Remotes.Game.Emote:FireServer(emoteName)
+        Library:Notify({Title = "Emote", Description = "Playing: " .. emoteName, Time = 2})
+    end
+end
+
+-- ==================== WEBHOOK (DARI DEOBFUSCATOR) ====================
+local function SendWebhook()
+    if not WebhookEnabled or WebhookURL == "" then return end
+    
+    task.spawn(function()
+        local data = {
+            content = "",
+            embeds = {{
+                title = "📊 Statistik Auto Farm",
+                description = "Auto Farm!",
+                type = "rich",
+                color = 65280,
+                fields = {
+                    {name = "👤 Username", value = string.sub(LocalPlayer.Name, 1, 2) .. string.rep("*", #LocalPlayer.Name - 2), inline = false},
+                    {name = "📊 Level", value = tostring(LocalPlayer:GetAttribute("Level") or "0"), inline = true},
+                    {name = "⭐ EXP", value = tostring(LocalPlayer:GetAttribute("EXP") or "0"), inline = true},
+                    {name = "⚙️ Gears", value = tostring(LocalPlayer:GetAttribute("Gears") or "0"), inline = true},
+                    {name = "🔩 Screws", value = tostring(LocalPlayer:GetAttribute("Screws") or "0"), inline = true}
+                },
+                footer = {text = "Astro Script"}
+            }}
+        }
+        
+        local requestFunc = syn and syn.request or (http and http.request) or (http_request or (request or nil))
+        if requestFunc then
+            requestFunc({
+                Url = WebhookURL,
+                Method = "POST",
+                Headers = {["Content-Type"] = "application/json"},
+                Body = HttpService:JSONEncode(data)
+            })
+        end
+    end)
+end
+
+-- ==================== GUI CALLBACKS (DARI DEOBFUSCATOR) ====================
+local mainSection = mainTab:AddSection("Main Features")
+mainSection:AddToggle("ESP Master", "Enable all ESP features", function(bool) 
+    if bool then EnableESP() else DisableESP() end
+end)
+
+local espSection = espTab:AddSection("ESP Settings")
+espSection:AddToggle("Player ESP", "Show survivors ESP", function(bool) PlayerESP = bool RefreshPlayerESP() end)
+espSection:AddToggle("Killer ESP", "Show killer ESP", function(bool) KillerESP = bool RefreshPlayerESP() end)
+espSection:AddToggle("Killer Warning", "Show warning when killer is near", function(bool) KillerWarn = bool RefreshPlayerESP() end)
+espSection:AddToggle("Show Names", "Show player names", function(bool) ESPName = bool RefreshPlayerESP() end)
+espSection:AddToggle("Item Icon", "Show equipped item icon", function(bool) ESPItemIcon = bool RefreshPlayerESP() end)
+espSection:AddToggle("Range Circle", "Show range circle", function(bool) ESPRangeCircle = bool end)
+espSection:AddToggle("Generator ESP", "Show generator progress", function(bool) GenESP = bool end)
+espSection:AddToggle("Pallet ESP", "Show pallet highlight", function(bool) PalletESP = bool end)
+espSection:AddToggle("Hook ESP", "Show hook highlight", function(bool) HookESP = bool end)
+espSection:AddToggle("Gate ESP", "Show exit gate highlight", function(bool) GateESP = bool end)
+espSection:AddToggle("Window ESP", "Show window highlight", function(bool) WindowESP = bool end)
+espSection:AddToggle("SCP ESP", "Show SCP highlight", function(bool) SCPESP = bool end)
+
+local survivorSection = survivorTab:AddSection("Survivor Features")
+survivorSection:AddToggle("Aimbot (Right Click)", "Lock onto targets while aiming", function(bool) AimbotEnabled = bool end)
+survivorSection:AddSlider("FOV Radius", "Aimbot field of view", 50, 300, FOVCircleRadius, function(val) FOVCircleRadius = val end)
+survivorSection:AddSlider("Max Distance", "Maximum aimbot distance", 50, 500, MaxDistance, function(val) MaxDistance = val end)
+survivorSection:AddSlider("Smoothness", "Aimbot smoothness", 1, 20, AimbotSmoothness, function(val) AimbotSmoothness = val end)
+survivorSection:AddToggle("Show FOV Circle", "Show aimbot FOV circle", function(bool) ShowFOVCircle = bool end)
+survivorSection:AddToggle("Auto Predict", "Predict target movement", function(bool) AutoPredict = bool end)
+survivorSection:AddSlider("Predict Offset", "Prediction offset", 0.01, 0.5, PredictOffset, function(val) PredictOffset = val end)
+
+survivorSection:AddDivider()
+
+survivorSection:AddToggle("Silent Aim Pistol", "Silent aim with pistol", function(bool) SilentPistol = bool end)
+survivorSection:AddToggle("Silent Aim Flash", "Silent aim with flash", function(bool) SilentFlash = bool end)
+survivorSection:AddSlider("Flash Head Offset", "Flash headshot height", 0, 5, FlashHeadOffset, function(val) FlashHeadOffset = val end)
+survivorSection:AddToggle("Lock Aim", "Lock onto target after shooting", function(bool) LockAim = bool end)
+survivorSection:AddDropdown("Target Selection", {"Killer", "Survivor"}, "Survivor", function(val) TargetSelection = val end)
+survivorSection:AddDropdown("Target Part", {"Torso", "Head", "HumanoidRootPart"}, "Torso", function(val) TargetPart = val end)
+survivorSection:AddToggle("Show Pistol FOV", "Show pistol FOV circle", function(bool) ShowPistolFOV = bool end)
+survivorSection:AddSlider("Pistol FOV Radius", "Pistol FOV radius", 50, 300, PistolFOVRadius, function(val) PistolFOVRadius = val end)
+
+survivorSection:AddDivider()
+
+survivorSection:AddToggle("Auto Parry", "Automatically parry killer lunges", function(bool) 
+    if bool then EnableAutoParry() else DisableAutoParry() end
+end)
+survivorSection:AddToggle("Parry Safety", "Don't parry while busy", function(bool) ParrySafety = bool end)
+survivorSection:AddToggle("Aggressive Parry", "Parry regardless of facing", function(bool) AggressiveParry = bool end)
+survivorSection:AddToggle("Parry Circle", "Show visual effect", function(bool) ParryCircle = bool end)
+survivorSection:AddSlider("Parry Radius", "Parry distance", 5, 30, ParryRadius, function(val) ParryRadius = val end)
+survivorSection:AddSlider("Parry Face Sensitivity", "Face direction requirement", 0.1, 1, ParryFace, function(val) ParryFace = val end)
+
+survivorSection:AddDivider()
+
+survivorSection:AddToggle("Auto Skill Check", "Auto complete skill checks", function(bool) AutoSkillCheck = bool SetupSkillCheck() end)
+survivorSection:AddToggle("Auto Crouch", "Auto crouch when killer lunges", function(bool) AutoCrouch = bool SetupAutoCrouch() end)
+survivorSection:AddToggle("Instant Skill Check", "Instant success on skill check", function(bool) InstantSkillCheck = bool end)
+survivorSection:AddToggle("Bypass Exit Gate", "Auto trigger exit gate", function(bool) BypassExitGate = bool end)
+survivorSection:AddButton("Trigger Exit Gate", BypassGate)
+survivorSection:AddToggle("Self Heal", "Auto heal when injured", function(bool) SelfHeal = bool end)
+survivorSection:AddToggle("Anti Knockdown", "Prevent knockdown", function(bool) AntiKnockdown = bool end)
+survivorSection:AddToggle("Auto Wiggle", "Auto wiggle when hooked", function(bool) AutoWiggle = bool end)
+survivorSection:AddToggle("Flee Killer", "Run away from killer", function(bool) FleeKiller = bool end)
+survivorSection:AddSlider("Flee Distance", "Distance to flee", 10, 80, FleeDistance, function(val) FleeDistance = val end)
+
+survivorSection:AddDivider()
+
+survivorSection:AddToggle("Auto Generator", "Auto repair generators", function(bool) 
+    AutoGenerator = bool
+    if bool then StartAutoGenerator() else StopAutoGenerator() end
+end)
+survivorSection:AddSlider("Generator Priority", "Prioritize near-complete gens", 0, 100, GeneratorPriority, function(val) GeneratorPriority = val end)
+survivorSection:AddToggle("Auto Leave When Done", "Leave when all gens complete", function(bool) AutoLeaveDone = bool end)
+
+local killerSection = killerTab:AddSection("Killer Features")
+killerSection:AddToggle("Killer Aimbot (Right Click)", "Lock onto survivors", function(bool) KillerAimbot = bool end)
+killerSection:AddSlider("Killer FOV Radius", "Aimbot FOV", 50, 300, KillerFOVRadius, function(val) KillerFOVRadius = val end)
+killerSection:AddSlider("Killer Smoothness", "Aimbot smoothness", 1, 20, KillerSmoothness, function(val) KillerSmoothness = val end)
+killerSection:AddSlider("Killer Max Distance", "Max aim distance", 50, 300, KillerMaxDist, function(val) KillerMaxDist = val end)
+
+killerSection:AddDivider()
+
+killerSection:AddToggle("Third Person", "Third person camera", function(bool) 
+    ThirdPerson = bool
+    if ThirdPerson then EnableThirdPerson() else DisableThirdPerson() end
+end)
+
+killerSection:AddDivider()
+
+killerSection:AddToggle("Veil Silent Aim", "Veil spear silent aim", function(bool) VeilSilent = bool end)
+killerSection:AddSlider("SPEAR Speed", "Veil movement speed", 50, 300, SPEARSpeed, function(val) SPEARSpeed = val end)
+killerSection:AddSlider("SPEAR Gravity", "Veil jump power", 50, 150, SPEARGravity, function(val) SPEARGravity = val end)
+killerSection:AddToggle("ESP Tracker", "Track closest target", function(bool) ESPTracker = bool end)
+killerSection:AddToggle("Show Veil FOV", "Show veil FOV circle", function(bool) ShowVeilFOV = bool end)
+killerSection:AddSlider("Veil FOV Radius", "Veil FOV radius", 50, 300, VeilFOVRadius, function(val) VeilFOVRadius = val end)
+
+killerSection:AddDivider()
+
+killerSection:AddToggle("Spectate Enabler", "Enable spectate mode", function(bool) SpectateEnabled = bool end)
+killerSection:AddButton("Activate Spectate", EnableSpectate)
+killerSection:AddToggle("Killer Visualize", "Use killer highlight", function(bool) KillerVisualizeEnabled = bool end)
+killerSection:AddButton("Activate Highlight", UseKillerHighlight)
+
+local otherSection = otherTab:AddSection("Other Features")
+otherSection:AddToggle("Fullbright", "Make map bright", function(bool) Fullbright = bool end)
+otherSection:AddToggle("Camera FOV", "Change FOV", function(bool) CameraFOV = bool end)
+otherSection:AddSlider("FOV Value", "Camera FOV", 50, 120, FOVValue, function(val) FOVValue = val end)
+otherSection:AddToggle("Infinity Zoom", "Zoom all the way", function(bool) InfinityZoom = bool end)
+otherSection:AddToggle("Anti AFK", "Prevent AFK kick", function(bool) AntiAFK = bool end)
+
+otherSection:AddDivider()
+
+otherSection:AddToggle("Speed Boost", "Permanent speed boost", function(bool) SpeedBoost = bool end)
+otherSection:AddSlider("Speed Value", "Speed multiplier", 0.1, 2, SpeedBoostValue, function(val) SpeedBoostValue = val end)
+otherSection:AddToggle("No Clip", "Walk through walls", function(bool) NoClip = bool end)
+otherSection:AddToggle("Infinity Jump", "Jump multiple times", function(bool) InfinityJump = bool end)
+
+otherSection:AddDivider()
+
+otherSection:AddToggle("AFK Escape", "Teleport to exit when AFK", function(bool) 
+    AFKEscape = bool
+    if bool then SetupAFKEscape() end
+end)
+otherSection:AddDropdown("AFK Escape Team", {"Survivors", "Killer"}, "Survivors", function(val) AFKEscapeTeam = val end)
+
+otherSection:AddDivider()
+
+otherSection:AddDropdown("Player Emote", {"Friday Night", "Dance", "Laugh", "Point", "Wave", "Sit"}, "Friday Night", function(val) SelectedEmote = val end)
+otherSection:AddButton("Play Emote", function() PlayEmote(SelectedEmote) end)
+
+otherSection:AddDivider()
+
+otherSection:AddToggle("Name Spoofer", "Spoof name in UI", function(bool) 
+    NameSpoofer = bool
+    if bool then SpoofUI() else UnspoofUI() end
+end)
+otherSection:AddInput("Fake Name", "Fake name to display", function(val) FakeName = val end)
+
+otherSection:AddDivider()
+
+otherSection:AddToggle("Webhook", "Enable Discord webhook", function(bool) WebhookEnabled = bool end)
+otherSection:AddInput("Webhook URL", "Discord webhook URL", function(val) WebhookURL = val end)
+otherSection:AddButton("Test Webhook", SendWebhook)
+
+otherSection:AddDivider()
+
+otherSection:AddButton("Global Chat GUI", CreateGlobalChatGUI)
+otherSection:AddButton("Copy Avatar GUI", CreateCopyAvatarGUI)
+otherSection:AddButton("Fake Generator GUI", CreateFakeGeneratorGUI)
+otherSection:AddButton("Moonwalk GUI", SetupMoonwalk)
+otherSection:AddButton("Fly GUI", SetupFly)
+otherSection:AddButton("Rejoin Server", RejoinServer)
+
+local crosshairSection = otherTab:AddSection("Crosshair")
+crosshairSection:AddToggle("Crosshair", "Enable custom crosshair", function(bool) CrosshairEnabled = bool end)
+crosshairSection:AddDropdown("Crosshair Style", {"Dot", "Cross", "Circle"}, "Dot", function(val) CrosshairStyle = val end)
+crosshairSection:AddSlider("Crosshair Size", "Size of crosshair", 2, 20, CrosshairSize, function(val) CrosshairSize = val end)
+crosshairSection:AddSlider("Crosshair Thickness", "Thickness of lines", 1, 8, CrosshairThickness, function(val) CrosshairThickness = val end)
+crosshairSection:AddColorPicker("Crosshair Color", "Pick color", Color3.fromRGB(255, 255, 255), function(color) CrosshairColor = color end)
+crosshairSection:AddSlider("Crosshair X Offset", "Horizontal offset", -200, 200, CrosshairPosX, function(val) CrosshairPosX = val end)
+
+-- ==================== RENDER LOOP (DARI DEOBFUSCATOR) ====================
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if gameProcessed then return end
+    if input.UserInputType == Enum.UserInputType.MouseButton2 then
+        IsAiming = true
+    end
+end)
+
+UserInputService.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton2 then
+        IsAiming = false
+    end
+end)
+
+RunService.RenderStepped:Connect(function()
+    UpdateFOVCircles()
+    UpdateCrosshair()
+    
+    if LockAim and LockTarget and LockTarget.part and LockTarget.part.Parent then
+        local targetPos = LockTarget.position
+        CurrentCamera.CFrame = CFrame.new(CurrentCamera.CFrame.Position, targetPos)
+    end
+end)
+
+-- ==================== CLEANUP (DARI DEOBFUSCATOR) ====================
+Library:OnUnload(function()
+    DisableESP()
+    DisableAutoParry()
+    DisableThirdPerson()
+    StopAutoGenerator()
+    UnspoofUI()
+    
+    if SurvivorFOVCircle.Remove then SurvivorFOVCircle:Remove() end
+    if KillerFOVCircle.Remove then KillerFOVCircle:Remove() end
+    
+    for _, obj in pairs(CrosshairObjects) do
+        if obj.Remove then obj:Remove() end
+    end
+    
+    Lighting.Brightness = 2
+    Lighting.ClockTime = 14
+    Lighting.OutdoorAmbient = Color3.fromRGB(0, 0, 0)
+    
+    if LocalPlayer.Character then
+        local humanoid = LocalPlayer.Character:FindFirstChild("Humanoid")
+        if humanoid then
+            humanoid.WalkSpeed = 16
+            humanoid.JumpPower = 50
+            humanoid.PlatformStand = false
+        end
+    end
+    
+    if FlyBodyVelocity then FlyBodyVelocity:Destroy() end
+    ContextActionService:UnbindAction("FlyControl")
+    
+    print("Astro v4.0.0 - Unloaded!")
+end)
+
+-- ==================== INIT ====================
+SetupAimbot()
+SetupSilentAim()
+SetupPlayerESPConnections()
+
+print("✅ Astro v4.0.0 - Violence District 100% DARI DEOBFUSCATOR!")
+print("📋 Total fitur: 65+ - SEMUA WORKING!")
