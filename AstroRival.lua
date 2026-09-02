@@ -1,4 +1,3 @@
-```lua
 -- ============================================================
 -- ASTRO - Rivals 100% Feature Complete
 -- Based on ZytheraX / RUNaways (gng.lua.txt)
