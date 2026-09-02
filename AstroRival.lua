@@ -1,9 +1,3 @@
--- ============================================================
--- ASTRO - Rivals 100% Feature Complete
--- Based on ZytheraX / RUNaways (gng.lua.txt)
--- Versi: 3.0.0 - Full Port
--- ============================================================
-
 local ASTRO = {
     Name = "ASTRO",
     SubName = "Rivals",
